@@ -1,0 +1,9 @@
+.helper { display: flex; flex-direction: column; gap: 12px; padding: 12px; border-radius: 14px; background: var(--sunk); }
+.areas { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.areas th, .areas td { padding: 8px 4px; border-top: 1px solid var(--line); text-align: left; vertical-align: middle; }
+.areas thead th { border-top: 0; font-size: .78rem; color: var(--muted); }
+.areas td { text-align: center; width: 72px; }
+.areas td input { width: 24px; height: 24px; accent-color: var(--accent-text); }
+.areas tbody th { font-weight: 400; }
+.member summary { cursor: pointer; color: var(--accent-text); font-weight: 700; padding: 8px 0; }
+.edit { display: flex; flex-direction: column; gap: 14px; padding-top: 8px; }

@@ -1,0 +1,24 @@
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 12px; flex-wrap: wrap; }
+.who { display: flex; align-items: center; gap: 10px; min-width: 0; position: relative; }
+.avatar {
+  flex: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--hero1), var(--hero2)); color: var(--accent-text);
+  font-family: var(--display); font-weight: 600; font-size: 1.1rem; box-shadow: 0 0 0 2px var(--accent);
+}
+.name { font-family: var(--display); font-weight: 600; font-size: 1.25rem; line-height: 1.1; margin: 0; overflow-wrap: anywhere; cursor: default; }
+.switcher summary { cursor: pointer; list-style: none; min-height: 44px; display: flex; align-items: center; }
+.switcher summary::after { content: "▾"; font-size: .9rem; margin-left: 6px; color: var(--muted); }
+.switcher summary::-webkit-details-marker { display: none; }
+.menu { position: absolute; top: 48px; left: 0; z-index: 6; min-width: 220px; }
+.menu a { text-decoration: none; color: var(--ink); font-weight: 700; min-height: 48px; align-items: center; }
+.nav { display: flex; align-items: center; gap: 16px; }
+.nav a { font-weight: 700; text-decoration: none; padding: 8px 0; }
