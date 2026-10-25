@@ -75,3 +75,10 @@ export function normalizeAreas(view: readonly string[], edit: readonly string[])
 export function isRole(value: unknown): value is Role {
   return typeof value === "string" && (ROLES as readonly string[]).includes(value);
 }
+
+type Membership = { role: Role; view_areas: readonly CareArea[]; edit_areas: readonly CareArea[] };
+
+// For showing or hiding buttons. The database makes the real decision.
+export const canView = (me: Membership, area: CareArea) => me.role !== "helper" || me.view_areas.includes(area);
+export const canEdit = (me: Membership, area: CareArea) =>
+  me.role === "owner" || me.role === "family" || (me.role === "helper" && me.edit_areas.includes(area));

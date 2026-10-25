@@ -1,20 +1,28 @@
 import Link from "next/link";
-import { ageText, greeting, hourIn } from "@/lib/dates";
+import { LiveRefresh } from "@/components/live-refresh";
+import { SeriesPrompts } from "@/components/visits/series-prompt";
+import { WeekPlan } from "@/components/visits/week-plan";
+import { canEdit, canView } from "@/lib/access";
+import { addDays, ageText, daysBetween, greeting, hourIn, isDay, todayIn } from "@/lib/dates";
 import { getFamily } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
+import { endingSoon } from "@/lib/visits";
+import { loadVisits } from "@/lib/visits-data";
 import styles from "./home.module.css";
 
-export default async function FamilyHome({ params }: PageProps<"/f/[familyId]">) {
+export default async function FamilyHome({ params, searchParams }: PageProps<"/f/[familyId]">) {
   const { familyId } = await params;
+  const { day } = await searchParams;
   const { family, children, me } = await getFamily(familyId);
+  const today = todayIn(family.time_zone);
   const hello = greeting(hourIn(family.time_zone));
+  const selected = isDay(day) && daysBetween(today, day) >= 0 && daysBetween(today, day) < 7 ? day : today;
 
-  let alone = false;
-  if (me.role === "owner") {
-    const supabase = await createClient();
-    const { count } = await supabase.from("family_members").select("*", { count: "exact", head: true }).eq("family_id", family.id);
-    alone = count === 1;
-  }
+  const seesVisits = canView(me, "visits");
+  const editsVisits = canEdit(me, "visits");
+  const week = seesVisits ? await loadVisits(family.id, today, addDays(today, 6)) : null;
+  const childNames = children.length > 1 ? new Map(children.map((c) => [c.id, c.name])) : null;
+  const alone = me.role === "owner" && (await countMembers(family.id)) === 1;
 
   return (
     <>
@@ -31,6 +39,19 @@ export default async function FamilyHome({ params }: PageProps<"/f/[familyId]">)
         </section>
       ))}
 
+      {week && editsVisits ? <SeriesPrompts familyId={family.id} series={endingSoon(week.series, today, 14)} /> : null}
+
+      {week ? (
+        <WeekPlan
+          familyId={family.id}
+          today={today}
+          selected={selected}
+          visits={week.visits}
+          canAdd={editsVisits}
+          childNames={childNames}
+        />
+      ) : null}
+
       {alone ? (
         <section className="card pad">
           <h2>Bring in the people who help</h2>
@@ -46,12 +67,13 @@ export default async function FamilyHome({ params }: PageProps<"/f/[familyId]">)
         </section>
       ) : null}
 
-      <section className="card">
-        <p className="calm">
-          This is where {children.map((c) => c.name).join(" and ")}&rsquo;s days will live: visits, meals, naps,
-          nurse notes and wins. Those arrive in the next updates.
-        </p>
-      </section>
+      {seesVisits ? <LiveRefresh familyId={family.id} tables={["visits", "visit_series"]} /> : null}
     </>
   );
+}
+
+async function countMembers(familyId: string): Promise<number> {
+  const supabase = await createClient();
+  const { count } = await supabase.from("family_members").select("*", { count: "exact", head: true }).eq("family_id", familyId);
+  return count ?? 0;
 }

@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --project unit",
     "test:db": "vitest run --project db",
-    "test:db:local": "scripts/test-db-local.sh"
+    "test:db:local": "scripts/test-db-local.sh",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -23,6 +24,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "@types/node": "^20",
     "@types/pg": "^8.23.1",
     "@types/react": "^19",

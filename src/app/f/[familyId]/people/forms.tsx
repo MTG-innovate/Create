@@ -1,56 +1,8 @@
 "use client";
 
-import { useActionState, useRef, useState, type ReactNode } from "react";
+import { useActionState, useRef, useState } from "react";
 import { AccessFields } from "./access-fields";
-import { invitePerson, type FormState, type InviteState } from "./actions";
-
-/** A form for a server action that shows its result next to the button. */
-export function ActionForm({
-  action,
-  children,
-  submit,
-  pendingLabel,
-  danger,
-  confirm,
-}: {
-  action: (prev: FormState, form: FormData) => Promise<FormState>;
-  children?: ReactNode;
-  submit: string;
-  pendingLabel: string;
-  danger?: boolean;
-  confirm?: string;
-}) {
-  const [state, run, pending] = useActionState(action, {});
-  const [armed, setArmed] = useState(false);
-  return (
-    <form
-      action={run}
-      className="fields"
-      onSubmit={(e) => {
-        // Destructive buttons ask for a second tap instead of a pop-up.
-        if (confirm && !armed) {
-          e.preventDefault();
-          setArmed(true);
-        }
-      }}
-    >
-      {children}
-      <div className="actions">
-        <button className={`btn small ${danger ? "danger" : "primary"}`} type="submit" disabled={pending}>
-          {pending ? pendingLabel : armed && confirm ? confirm : submit}
-        </button>
-        <span role="status" className="small muted">
-          {state.done}
-        </span>
-      </div>
-      {state.error ? (
-        <p className="banner" role="alert">
-          {state.error}
-        </p>
-      ) : null}
-    </form>
-  );
-}
+import { invitePerson, type InviteState } from "./actions";
 
 export function InviteForm({ familyId }: { familyId: string }) {
   const [state, run, pending] = useActionState<InviteState, FormData>(invitePerson, {});

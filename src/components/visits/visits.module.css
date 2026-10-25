@@ -1,0 +1,42 @@
+/* From the prototype: .week, .wday, .tl, .datebox, .series, .seg */
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.wday {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px; border-radius: 16px;
+  border: 1px solid var(--line); background: var(--surface); min-width: 0; color: var(--ink); text-decoration: none; min-height: 64px;
+}
+.wday .wd { font-size: .68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; overflow: hidden; max-width: 100%; }
+.wday b { font-family: var(--display); font-weight: 600; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.dots { display: flex; gap: 3px; min-height: 7px; }
+.dots i { width: 6px; height: 6px; border-radius: 50%; }
+.wday[aria-current="date"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.wday[aria-current="date"] .wd { color: var(--accent-ink); }
+
+.dayCard .eyebrow { padding: 12px 16px 0; }
+.tlList { display: flex; flex-direction: column; padding: 6px 0 8px; }
+.tl { display: flex; align-items: flex-start; gap: 12px; padding: 10px 16px; text-decoration: none; color: var(--ink); min-height: 48px; }
+.tl:hover { background: var(--sunk); }
+.tlTime { flex: none; width: 74px; white-space: nowrap; font-weight: 700; font-size: .9rem; font-variant-numeric: tabular-nums; padding-top: 1px; }
+.dot { flex: none; width: 12px; height: 12px; border-radius: 50%; margin-top: 5px; }
+.main { flex: 1; min-width: 0; }
+.title { font-weight: 700; overflow-wrap: anywhere; }
+.sub { color: var(--muted); font-size: .875rem; overflow-wrap: anywhere; }
+
+.appt { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-top: 1px solid var(--line); text-decoration: none; color: var(--ink); }
+.appt:first-child { border-top: 0; }
+.appt:hover { background: var(--sunk); }
+.datebox { flex: none; width: 52px; text-align: center; border-radius: 12px; background: var(--accent-soft); padding: 6px 0; line-height: 1.1; }
+.datebox b { display: block; font-family: var(--display); font-weight: 600; font-size: 1.35rem; color: var(--accent-text); }
+.datebox span { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; }
+.clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-top: 4px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.home { margin-top: 6px; font-size: .92rem; padding: 8px 10px; border-radius: 8px; background: var(--accent-soft); overflow-wrap: anywhere; }
+.chip { margin-top: 6px; display: inline-flex; align-items: center; gap: 6px; font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--sunk); color: var(--muted); white-space: nowrap; }
+.chip i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+.series { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; }
+.bubble { flex: none; width: 38px; height: 38px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; color: var(--c); background: color-mix(in srgb, var(--c) 16%, var(--surface)); }
+.bubble svg { width: 22px; height: 22px; }
+.answers { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+.seg { display: inline-flex; background: var(--sunk); border-radius: 999px; padding: 3px; gap: 2px; }
+.seg a { border-radius: 999px; padding: 8px 16px; font-weight: 700; color: var(--muted); font-size: .9rem; text-decoration: none; min-height: 40px; display: inline-flex; align-items: center; }
+.seg a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, .12); }
