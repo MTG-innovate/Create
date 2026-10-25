@@ -37,7 +37,7 @@ export const AREA_LABEL: Record<CareArea, string> = {
   nurse_notes: "Nurse notes",
   growth: "Weigh ins",
   practice: "Practice at home",
-  medicines: "Medicine list",
+  medicines: "Medicines, equipment and supplies",
   team: "Helpers and phone numbers",
   wins: "Wins and bright spots",
   questions: "Questions to ask",

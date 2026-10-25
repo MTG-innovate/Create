@@ -70,6 +70,13 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
                 <label htmlFor={`birth-${child.id}`}>Birthday</label>
                 <input id={`birth-${child.id}`} name="birthDate" type="date" defaultValue={child.birth_date ?? ""} />
               </div>
+              <div className="field half">
+                <label htmlFor={`due-${child.id}`}>Due date</label>
+                <input id={`due-${child.id}`} name="dueDate" type="date" defaultValue={child.due_date ?? ""} />
+              </div>
+              <p className="muted small" style={{ flexBasis: "100%" }}>
+                If {child.name} came early, the due date lets Home show {child.name}&rsquo;s corrected age, which doctors and therapists use until age 2 or 3.
+              </p>
             </ActionForm>
           ) : null}
         </section>

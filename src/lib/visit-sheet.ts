@@ -17,12 +17,14 @@ export type SheetInput = {
   visit: SheetVisit;
   today: string;
   unit: Unit;
-  medicines: { name: string; dose: string | null; when_to_give: string | null }[];
+  medicines: { name: string; dose: string | null; when_to_give: string | null; times?: string[] }[];
   /** Weigh-ins and the last 14 days of moments, for this child. */
   moments: Moment[];
   /** Visits with notes from the last 90 days, for this child. */
   notes: SheetNote[];
   practice: { instruction: string; provider: string | null }[];
+  /** Equipment the child uses (a feeding pump, oxygen), when the person may see it. */
+  equipment?: { name: string; details: string | null }[];
   questions: { text: string; for_whom: string | null }[];
 };
 
@@ -37,7 +39,12 @@ export function buildVisitSheet(s: SheetInput): VisitSheet {
   const sections: VisitSheet["sections"] = [];
   const add = (title: string, items: string[], none: string) => sections.push({ title, items: items.length ? items : [none] });
 
-  add("Current medicines", s.medicines.map((m) => [m.name, m.dose, m.when_to_give].filter(Boolean).join(", ")), "None listed");
+  add(
+    "Current medicines",
+    s.medicines.map((m) => [m.name, m.dose, (m.times ?? []).map(fmtTime).join(" and "), m.when_to_give].filter(Boolean).join(", ")),
+    "None listed",
+  );
+  if (s.equipment?.length) sections.push({ title: "Equipment", items: s.equipment.map((e) => [e.name, e.details].filter(Boolean).join(": ")) });
 
   const weights = s.moments
     .filter((m) => m.type === "weigh_in" && totalOunces(m.details) > 0 && m.date >= addDays(today, -60))

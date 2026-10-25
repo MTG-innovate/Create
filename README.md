@@ -16,8 +16,11 @@ visit sheet, ready to show, print or copy (step 6); AI capture of a nurse
 text, a therapy handoff or a doctor visit summary, always checked by a person
 before it saves (step 7); reminders on each person's phone for visits and the
 night feed, and the app can be added to the home screen (step 8); the JOSIA
-Care name, Care Circles and care journeys, with Little Steps as the first.
-Everything updates live for everyone in the Care Circle.
+Care name, Care Circles and care journeys, with Little Steps as the first; and
+the everyday essentials for a baby's life: corrected age, medicine times with a
+"Medicines today" checklist, an emergency card, a pumping log, and equipment and
+supplies with reorder dates. Everything updates live for everyone in the Care
+Circle.
 
 ## Stack
 
@@ -141,6 +144,25 @@ select cron.schedule('little-steps-reminders', '*/5 * * * *', $$
   select net.http_get('https://<your app>/api/reminders', headers := jsonb_build_object('Authorization', 'Bearer <REMINDER_SECRET>'))
 $$);
 ```
+
+The everyday essentials, for a baby home from the NICU:
+
+- **Corrected age.** With a due date in Settings, Home shows the child's age
+  from the birthday and the corrected age from the due date
+  (`correctedAgeText` in `src/lib/dates.ts`), until age 3.
+- **Medicines today.** A medicine can have up to four times of day. Each time is
+  a dose to tick off on Home, saved as a diary moment, so everyone sees who gave
+  it and when (`src/lib/medicines-today.ts`). Doses and the medicine list change
+  only by hand, never by AI.
+- **Emergency card** (`src/lib/emergency-card.ts`): allergies, conditions,
+  medicines, equipment, the plan, the preferred hospital and the care team on
+  one page, with Call 911 and Copy card. Owners and family fill it in; everyone
+  in the Care Circle can read it, with only the parts they may see.
+- **Pumping** is a diary moment. Its tile joins Home once someone logs a session.
+- **Equipment and supplies** (`supplies`, under the medicines care area): the
+  feeding pump, oxygen, tube sizes and formula, with who to call and a gentle
+  "Reorder by" reminder (`src/lib/supplies.ts`). Equipment shows on the
+  emergency card and the visit sheet.
 
 Care journeys (`src/lib/journeys.ts`) are the start of JOSIA Care: each person
 receiving care follows one journey (`children.journey`), which decides the Home

@@ -120,6 +120,7 @@ export function sampleRows(familyId: string, childId: string): Record<string, Re
     team_contacts: { family_id: familyId, name: "Pat Example, RN", phone: "555-0100" },
     wins: { family_id: familyId, child_id: childId, title: "Finished a whole bottle", happened_on: "2026-02-10" },
     questions: { family_id: familyId, child_id: childId, text: "Can we stop the night feed?" },
+    supplies: { family_id: familyId, child_id: childId, name: "Feeding pump bags", category: "Supply", reorder_days: 30 },
   };
 }
 

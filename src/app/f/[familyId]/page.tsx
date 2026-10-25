@@ -7,6 +7,7 @@ import { NurseCard } from "@/components/diary/nurse-card";
 import { Encouragement } from "@/components/home/encouragement";
 import { HelpersSaying } from "@/components/home/helpers-saying";
 import { MomentForYou } from "@/components/home/moment-for-you";
+import { MedicinesToday } from "@/components/home/medicines-today";
 import { PracticeToday } from "@/components/home/practice-today";
 import { QuestionsToAsk } from "@/components/home/questions";
 import { Bubble } from "@/components/icons";
@@ -16,14 +17,16 @@ import { LiveRefresh } from "@/components/live-refresh";
 import { SeriesPrompts } from "@/components/visits/series-prompt";
 import { WeekPlan } from "@/components/visits/week-plan";
 import { canEdit, canView } from "@/lib/access";
-import { addDays, ageText, daysBetween, fmtDay, fmtTime, greeting, hourIn, isDay, minutesSince, todayIn } from "@/lib/dates";
-import { latestVisitNotes, loadChecks, loadPractice } from "@/lib/helpers-data";
+import { addDays, ageText, correctedAgeText, daysBetween, fmtDay, fmtTime, greeting, hourIn, isDay, minutesSince, todayIn } from "@/lib/dates";
+import { latestVisitNotes, loadChecks, loadDoses, loadPractice } from "@/lib/helpers-data";
+import { dosesToday } from "@/lib/medicines-today";
+import { localNow } from "@/lib/reminders";
 import { upSince, weighIns } from "@/lib/journey";
 import { loadWeighIns, loadWins } from "@/lib/journey-data";
 import { MOMENTS, newestFirst, summarizeDay, type MomentType } from "@/lib/moments";
 import { lastMeals, loadMoments, namesFor } from "@/lib/moments-data";
 import { photoUrls } from "@/lib/photos";
-import { journeyConfig } from "@/lib/journeys";
+import { dayTilesFor, journeyConfig } from "@/lib/journeys";
 import { getFamily } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { endingSoon } from "@/lib/visits";
@@ -62,6 +65,10 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
     : [];
   const checks = daily.length ? await loadChecks(family.id, today) : [];
   const checkers = await namesFor(checks.map((c) => c.created_by), user.id);
+  // Doses are ticked in the diary, so the checklist needs both the medicine list and the diary.
+  const doses = canView(me, "medicines") && seesDiary ? await loadDoses(family.id, today) : null;
+  const doseRows = doses ? dosesToday(doses.medicines, doses.given, localNow(family.time_zone, new Date()).minutes) : [];
+  const givers = await namesFor(doseRows.map((r) => r.given?.by ?? null), user.id);
   const helperNotes = seesVisits ? await latestVisitNotes(family.id, today) : [];
   const allNames = children.map((c) => c.name).join(" and ");
   const questions = canView(me, "questions") ? await openQuestions(family.id) : [];
@@ -81,7 +88,14 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
           <div className={styles.text}>
             <p className="eyebrow">{greeting(hour)}</p>
             <h1 className={styles.heroName}>{child.name}</h1>
-            {ageText(child.birth_date) ? <p className={styles.age}>{ageText(child.birth_date)}</p> : null}
+            {ageText(child.birth_date) ? (
+                <p className={styles.age}>
+                  {ageText(child.birth_date)}
+                  {correctedAgeText(child.birth_date, child.due_date) ? (
+                    <span className={styles.corrected}>{correctedAgeText(child.birth_date, child.due_date)}</span>
+                  ) : null}
+                </p>
+              ) : null}
             <UpSince familyId={family.id} up={growth.get(child.id) ?? null} />
           </div>
         </section>
@@ -116,7 +130,7 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
                   </Link>
                 ) : null}
                 <DayTiles
-                  tiles={journeyConfig(child.journey).dayTiles}
+                  tiles={dayTilesFor(journeyConfig(child.journey), mine)}
                   summary={summarizeDay(mine, today, family.feed_unit, lastMeal)}
                   unit={family.feed_unit}
                   childName={child.name}
@@ -137,6 +151,15 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
           nurseVisitTime={week?.visits.find((v) => v.date === today && v.kind === "In-home nurse")?.time ?? undefined}
           nurseVisitToday={Boolean(week?.visits.some((v) => v.date === today && v.kind === "In-home nurse"))}
           addHref={canEdit(me, "nurse_notes") ? `/f/${family.id}/capture/nurse?${new URLSearchParams({ child: first.id, next: here })}` : null}
+        />
+      ) : null}
+
+      {doseRows.length ? (
+        <MedicinesToday
+          familyId={family.id}
+          canTick={canEdit(me, "diary")}
+          names={Object.fromEntries(givers)}
+          rows={doseRows.map((r) => (childNames ? { ...r, name: `${r.name} (${childNames.get(r.childId)})` } : r))}
         />
       ) : null}
 
@@ -181,7 +204,7 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
       {caregiver ? <MomentForYou today={today} name={allNames} /> : null}
 
       <AddMenu groups={addMenuGroups({ familyId: family.id, me, childName: first.name, childId: first.id, journey: first.journey, date: today, next: here })} />
-      <LiveRefresh familyId={family.id} tables={["visits", "visit_series", "moments", "wins", "practice_checks", "practice_items", "children", "families", "questions"]} />
+      <LiveRefresh familyId={family.id} tables={["visits", "visit_series", "moments", "wins", "practice_checks", "practice_items", "children", "families", "questions", "medicines"]} />
     </>
   );
 }

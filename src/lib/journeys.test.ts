@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { capturePrompt } from "./capture";
-import { CARE_JOURNEYS, LITTLE_STEPS, journeyConfig, visitKindsFor, type JourneyConfig } from "./journeys";
+import { CARE_JOURNEYS, LITTLE_STEPS, dayTilesFor, journeyConfig, visitKindsFor, type JourneyConfig } from "./journeys";
 import { buildVisitSheet, type SheetInput } from "./visit-sheet";
 import { VISIT_KINDS } from "./visits";
 
@@ -10,7 +10,8 @@ import { VISIT_KINDS } from "./visits";
 describe("Little Steps is unchanged", () => {
   it("keeps the same Home and diary tiles, + menu and visit types", () => {
     expect(LITTLE_STEPS.dayTiles).toEqual(["meals", "night_feed", "last_meal", "diapers", "naps", "playtime"]);
-    expect(LITTLE_STEPS.dayMoments).toEqual(["meal", "night_feed", "diaper", "nap", "playtime", "medicine_given", "weigh_in", "note"]);
+    // Pumping (added for NICU mothers) sits before Note in the + menu.
+    expect(LITTLE_STEPS.dayMoments).toEqual(["meal", "night_feed", "diaper", "nap", "playtime", "medicine_given", "weigh_in", "pumping", "note"]);
     expect(LITTLE_STEPS.visitKinds).toEqual(VISIT_KINDS);
     expect(LITTLE_STEPS.visitSheet).toEqual({ weight: true, meals: true, nightFeeds: true });
   });
@@ -33,6 +34,11 @@ describe("Little Steps is unchanged", () => {
     expect(visitKindsFor(["little_steps"])).toEqual([...VISIT_KINDS]);
     expect(visitKindsFor([])).toEqual([]);
   });
+});
+
+it("shows the pumping tile only once someone has pumped lately", () => {
+  expect(dayTilesFor(LITTLE_STEPS, [{ type: "meal" }])).toEqual(LITTLE_STEPS.dayTiles);
+  expect(dayTilesFor(LITTLE_STEPS, [{ type: "pumping" }]).at(-1)).toBe("pumping");
 });
 
 describe("a journey decides the visit sheet", () => {

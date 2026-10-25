@@ -6,7 +6,7 @@ import { isDay } from "./dates";
 // from the prototype's CFG.team, CFG.plan, CFG.meds and CFG.questions: one
 // definition drives each form and the checks on save.
 
-export const RECORD_KINDS = ["team", "practice", "medicines", "questions"] as const;
+export const RECORD_KINDS = ["team", "practice", "medicines", "questions", "supplies"] as const;
 export type RecordKind = (typeof RECORD_KINDS)[number];
 
 export const FREQUENCIES = ["Every day", "Several times a day", "A few times a week", "Weekly", "As needed"] as const;
@@ -28,15 +28,25 @@ export const TEAM_ROLES = [
 export type RecordField = {
   key: string;
   label: string;
-  kind: "text" | "textarea" | "tel" | "select" | "date" | "checkbox";
+  kind: "text" | "textarea" | "tel" | "select" | "date" | "checkbox" | "times" | "days";
   required?: boolean;
   half?: boolean;
   placeholder?: string;
   options?: readonly string[];
+  /** For "days": how often, as [days, words]. */
+  every?: readonly (readonly [number, string])[];
   suggest?: "team" | "roles";
   /** "today" for the family's today. */
   initial?: string | boolean;
 };
+
+export const REORDER_EVERY = [
+  [7, "Every week"],
+  [14, "Every 2 weeks"],
+  [30, "Every month"],
+  [60, "Every 2 months"],
+  [90, "Every 3 months"],
+] as const;
 
 export const RECORDS: Record<
   RecordKind,
@@ -75,10 +85,29 @@ export const RECORDS: Record<
     fields: () => [
       { key: "name", label: "Medicine", kind: "text", required: true },
       { key: "dose", label: "Dose", kind: "text", half: true },
-      { key: "when_to_give", label: "When to give", kind: "text", half: true, placeholder: "8 AM and 8 PM" },
+      { key: "when_to_give", label: "How and when to give", kind: "text", half: true, placeholder: "With a feed, through the tube" },
+      { key: "times", label: "Times of day", kind: "times" },
       { key: "prescriber", label: "Prescribed by", kind: "text", suggest: "team" },
       { key: "pharmacy", label: "Pharmacy", kind: "text" },
       { key: "notes", label: "Notes", kind: "textarea", placeholder: "How to measure, side effects to watch" },
+    ],
+  },
+  supplies: {
+    table: "supplies",
+    // Equipment and supplies sit with medicines: whoever manages one manages the other.
+    area: "medicines",
+    title: "Equipment or supply",
+    perChild: true,
+    fields: () => [
+      { key: "name", label: "What it is", kind: "text", required: true, placeholder: "Feeding pump, oxygen tubing, formula" },
+      { key: "category", label: "Type", kind: "select", options: ["Equipment", "Supply"], required: true, half: true, initial: "Supply" },
+      { key: "details", label: "Size, model or settings", kind: "text", half: true, placeholder: "8 Fr, 30 ml an hour" },
+      { key: "supplier", label: "Supplier or pharmacy", kind: "text", half: true },
+      { key: "phone", label: "Their phone", kind: "tel", half: true },
+      { key: "reorder_days", label: "Reorder", kind: "days", every: REORDER_EVERY, half: true },
+      { key: "last_ordered", label: "Last ordered", kind: "date", half: true },
+      { key: "active", label: "Still using this", kind: "checkbox", initial: true },
+      { key: "notes", label: "Notes", kind: "textarea", placeholder: "How to clean it, who to call when it alarms" },
     ],
   },
   questions: {
@@ -101,8 +130,19 @@ export const isRecordKind = (v: unknown): v is RecordKind => (RECORD_KINDS as re
 export function parseRecord(kind: RecordKind, values: Record<string, unknown>) {
   const shape: Record<string, z.ZodType> = {};
   for (const f of RECORDS[kind].fields("")) {
-    if (f.kind === "checkbox") {
+    if (f.kind === "times") {
+      // Up to four times of day for the "Medicines today" checklist, in order.
+      shape[f.key] = z.preprocess(
+        (v) => [...new Set((Array.isArray(v) ? v : [v]).filter((t) => typeof t === "string" && t))].sort(),
+        z.array(z.string().regex(/^\d{2}:\d{2}$/, "Please check the times.")).max(4, "Up to four times a day."),
+      );
+    } else if (f.kind === "checkbox") {
       shape[f.key] = z.preprocess((v) => v === "on" || v === true, z.boolean());
+    } else if (f.kind === "days") {
+      const allowed = new Set(f.every?.map(([d]) => d));
+      shape[f.key] = z.preprocess((v) => (v ? Number(v) : null), z.number().refine((n) => allowed.has(n), "Please choose how often.").nullable());
+    } else if (f.kind === "select" && f.required) {
+      shape[f.key] = z.enum(f.options as [string, ...string[]], `Please choose ${f.label.toLowerCase()}.`);
     } else if (f.kind === "select") {
       shape[f.key] = z.preprocess((v) => v || null, z.enum(f.options as [string, ...string[]]).nullable());
     } else if (f.kind === "date") {

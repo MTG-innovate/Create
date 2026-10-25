@@ -15,6 +15,7 @@ export const MOMENT_TYPES = [
   "weigh_in",
   "nurse_note",
   "note",
+  "pumping",
 ] as const;
 export type MomentType = (typeof MOMENT_TYPES)[number];
 
@@ -120,6 +121,19 @@ export const MOMENTS: Record<
       { ...note(`How ${c.name} did`), kind: "textarea" },
     ],
     line: (m) => join(m.details.what, m.details.minutes ? `${m.details.minutes} min` : ""),
+  },
+  pumping: {
+    label: "Pumping",
+    color: "--feed",
+    area: "diary",
+    fields: (c) => [
+      { key: "amount", label: "Amount pumped", kind: "number", step: "0.25", half: true, max: 2000 },
+      unitField(c.unit),
+      { key: "side", label: "Side", kind: "select", options: ["Both", "Left", "Right"], half: true },
+      { key: "minutes", label: "Minutes", kind: "number", half: true, max: 240 },
+      { ...note("Notes", "Every drop counts. Anything to remember for next time"), kind: "textarea" },
+    ],
+    line: (m) => join(amountText(m.details.amount, m.details.unit), m.details.side, m.details.minutes ? `${m.details.minutes} min` : ""),
   },
   medicine_given: {
     label: "Medicine",
@@ -256,6 +270,8 @@ export type DaySummary = {
   diapers: { count: number; wet: number; dirty: number };
   naps: { count: number; hours: number };
   play: { count: number; minutes: number };
+  /** Milk pumped this day, in the family's unit. Not counted as meals. */
+  pumping: { total: number; count: number };
 };
 
 /**
@@ -290,6 +306,7 @@ export function summarizeDay(moments: Moment[], date: string, unit: Unit, lastMe
     },
     naps: { count: naps.length, hours: naps.reduce((s, n) => s + (Number(n.details.hours) || 0), 0) },
     play: { count: play.length, minutes: play.reduce((s, p) => s + (Number(p.details.minutes) || 0), 0) },
+    pumping: { total: of("pumping").reduce((sum, m) => sum + toUnit(m.details.amount, m.details.unit, unit), 0), count: of("pumping").length },
   };
 }
 

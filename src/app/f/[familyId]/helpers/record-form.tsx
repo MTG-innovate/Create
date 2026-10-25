@@ -91,6 +91,20 @@ function Field({ field: f, value, today, options }: { field: RecordField; value:
       </label>
     );
   }
+  if (f.kind === "times") {
+    const times = (Array.isArray(value) ? (value as string[]) : []).map((t) => t.slice(0, 5));
+    return (
+      <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }}>
+        <legend>{f.label}</legend>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {[0, 1, 2, 3].map((i) => (
+            <input key={i} name={f.key} type="time" aria-label={`${f.label}, ${i + 1}`} defaultValue={times[i] ?? ""} style={{ flex: "1 1 120px" }} />
+          ))}
+        </div>
+        <span className="muted small">Each time shows up on Home as a dose to tick off.</span>
+      </fieldset>
+    );
+  }
   const label = `${f.label}${f.required ? " *" : ""}`;
   const text = initial == null ? "" : String(initial);
   return (
@@ -98,6 +112,15 @@ function Field({ field: f, value, today, options }: { field: RecordField; value:
       <label htmlFor={id}>{label}</label>
       {f.kind === "textarea" ? (
         <textarea id={id} name={f.key} rows={3} required={f.required} defaultValue={text} placeholder={f.placeholder} />
+      ) : f.kind === "days" ? (
+        <select id={id} name={f.key} defaultValue={text}>
+          <option value="">Not on a schedule</option>
+          {f.every?.map(([days, words]) => (
+            <option key={days} value={days}>
+              {words}
+            </option>
+          ))}
+        </select>
       ) : f.kind === "select" ? (
         <select id={id} name={f.key} defaultValue={text}>
           <option value="">Choose…</option>

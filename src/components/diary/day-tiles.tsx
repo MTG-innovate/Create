@@ -27,7 +27,7 @@ export function DayTiles({
   /** Where tapping a tile goes, or null when this person cannot add that kind of moment. */
   addHref: (type: MomentType) => string | null;
 }) {
-  const { meals, nightFeed: nf, lastMeal, diapers, naps, play } = summary;
+  const { meals, nightFeed: nf, lastMeal, diapers, naps, play, pumping } = summary;
   const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
   const tile: Record<DayTile, ReactNode> = {
@@ -60,6 +60,11 @@ export function DayTiles({
       <Tile href={addHref("playtime")} icon="playtime" color="--exercise" label="Playtime"
         value={play.count ? (play.minutes ? `${play.minutes} min` : String(play.count)) : "Not yet"}
         detail={play.count ? plural(play.count, "time") : ""} />
+    ),
+    pumping: (
+      <Tile href={addHref("pumping")} icon="pumping" color="--feed" label="Pumped"
+        value={pumping.count ? fmtAmount(pumping.total, unit) : "Not yet"}
+        detail={pumping.count ? `${plural(pumping.count, "session")}. Every drop counts.` : "Tap to add a session"} />
     ),
   };
 

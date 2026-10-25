@@ -19,6 +19,11 @@ export type Child = {
   birth_date: string | null;
   photo_path: string | null;
   journey: CareJourney;
+  due_date: string | null;
+  conditions: string | null;
+  allergies: string | null;
+  emergency_plan: string | null;
+  hospital: string | null;
 };
 
 export type Member = {

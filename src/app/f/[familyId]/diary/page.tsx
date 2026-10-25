@@ -9,7 +9,7 @@ import { canEdit, canView } from "@/lib/access";
 import { addDays, dayLabel, isDay, minutesSince, todayIn } from "@/lib/dates";
 import { MOMENTS, summarizeDay } from "@/lib/moments";
 import { lastMeals, loadMoments, namesFor } from "@/lib/moments-data";
-import { journeyConfig } from "@/lib/journeys";
+import { dayTilesFor, journeyConfig } from "@/lib/journeys";
 import { getFamily } from "@/lib/session";
 
 export default async function DiaryPage({ params, searchParams }: PageProps<"/f/[familyId]/diary">) {
@@ -77,7 +77,7 @@ export default async function DiaryPage({ params, searchParams }: PageProps<"/f/
 
       {canView(me, "diary") ? (
         <DayTiles
-          tiles={journeyConfig(child.journey).dayTiles}
+          tiles={dayTilesFor(journeyConfig(child.journey), moments)}
           summary={summarizeDay(moments, date, family.feed_unit, last)}
           unit={family.feed_unit}
           childName={child.name}

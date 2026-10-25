@@ -6,7 +6,7 @@ import { signIn } from "./helpers";
 // A radio or checkbox counts by its whole label, and a link inside a sentence
 // is part of the text.
 
-const SCREENS = ["", "/visits", "/visits/new", "/diary", "/journey", "/helpers", "/people", "/settings", "/capture/nurse"];
+const SCREENS = ["", "/visits", "/visits/new", "/diary", "/journey", "/helpers", "/people", "/settings", "/capture/nurse", "/card", "/helpers/supplies/new", "/helpers/medicines/new"];
 
 test("every main screen has full-size tap targets and fits the phone", async ({ browser }) => {
   const parent = await signIn(browser, "parent@example.com");

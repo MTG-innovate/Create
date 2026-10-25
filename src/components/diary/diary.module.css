@@ -66,3 +66,9 @@ a.row:hover { background: var(--sunk); }
   text-align: center; text-decoration: none; color: var(--ink);
 }
 .addTile:hover { background: var(--sunk); }
+/* A tile left alone on the last row (such as Pumped) spans it instead. */
+.tiles > :last-child:nth-child(3n + 1) { grid-column: 1 / -1; }
+@media (max-width: 420px) {
+  .tiles > :last-child:nth-child(3n + 1) { grid-column: auto; }
+  .tiles > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
