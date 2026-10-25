@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { FormState } from "@/components/action-form";
-import { isDay } from "@/lib/dates";
+import { daysBetween, isDay } from "@/lib/dates";
 import { friendlyError } from "@/lib/errors";
 import { getFamily } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
@@ -19,14 +19,26 @@ const childName = z.string().trim().min(1, "Please add a name.").max(60);
 const notSaved = (error: { code?: string; message?: string } | null, rows: unknown[] | null) =>
   error ? friendlyError(error) : !rows?.length ? "Only an owner or family can change this." : null;
 
+const dueDate = z
+  .string()
+  .optional()
+  .transform((v) => v || null)
+  .refine((v) => v === null || isDay(v), "Please check the due date.");
+
 export async function saveChild(_prev: FormState, form: FormData): Promise<FormState> {
-  const v = z.object({ familyId: z.uuid(), childId: z.uuid(), name: childName, birthDate: birthday }).safeParse(Object.fromEntries(form));
+  const v = z
+    .object({ familyId: z.uuid(), childId: z.uuid(), name: childName, birthDate: birthday, dueDate })
+    .refine(
+      ({ birthDate, dueDate }) => !birthDate || !dueDate || (daysBetween(birthDate, dueDate) >= -30 && daysBetween(birthDate, dueDate) <= 140),
+      "The due date should be within a few months of the birthday. Please check it.",
+    )
+    .safeParse(Object.fromEntries(form));
   if (!v.success) return { error: v.error.issues[0].message };
   await getFamily(v.data.familyId);
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("children")
-    .update({ name: v.data.name, birth_date: v.data.birthDate })
+    .update({ name: v.data.name, birth_date: v.data.birthDate, due_date: v.data.dueDate })
     .eq("id", v.data.childId)
     .eq("family_id", v.data.familyId)
     .select("id");
@@ -122,4 +134,39 @@ export async function deleteChildData(_prev: FormState, form: FormData): Promise
   if (files?.length) await supabase.storage.from(BUCKET).remove(files.map((f) => `${folder}/${f.name}`));
   revalidatePath(`/f/${v.data.familyId}`, "layout");
   redirect(`/f/${v.data.familyId}/settings?deleted=1`);
+}
+
+const cardText = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .optional()
+    .transform((v) => v || null);
+
+/** Saves the emergency card's details for one child. Owners and family only (the database checks). */
+export async function saveCard(_prev: FormState, form: FormData): Promise<FormState> {
+  const v = z
+    .object({
+      familyId: z.uuid(),
+      childId: z.uuid(),
+      conditions: cardText(2000),
+      allergies: cardText(1000),
+      emergencyPlan: cardText(4000),
+      hospital: cardText(300),
+    })
+    .safeParse(Object.fromEntries(form));
+  if (!v.success) return { error: "Please shorten one of the answers and try again." };
+  await getFamily(v.data.familyId);
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("children")
+    .update({ conditions: v.data.conditions, allergies: v.data.allergies, emergency_plan: v.data.emergencyPlan, hospital: v.data.hospital })
+    .eq("id", v.data.childId)
+    .eq("family_id", v.data.familyId)
+    .select("id");
+  const problem = notSaved(error, data);
+  if (problem) return { error: problem };
+  revalidatePath(`/f/${v.data.familyId}`, "layout");
+  return { done: "Saved" };
 }

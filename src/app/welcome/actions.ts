@@ -25,7 +25,7 @@ export async function startFamily(_prev: WelcomeState, form: FormData): Promise<
   if (yourName) await supabase.from("profiles").update({ display_name: yourName }).eq("id", user.id);
 
   const { data: familyId, error } = await supabase.rpc("create_family", {
-    family_name: `${childName}'s family`,
+    family_name: `${childName}'s Care Circle`,
     child_name: childName,
     child_birth_date: birthDate || null,
     family_time_zone: isTimeZone(timeZone) ? timeZone : "America/New_York",

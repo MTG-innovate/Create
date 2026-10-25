@@ -1,4 +1,5 @@
 import { addDays, fmtDay, fmtTime } from "./dates";
+import { LITTLE_STEPS, type JourneyConfig } from "./journeys";
 import { MOMENTS, fmtAmount, fmtWeight, newestFirst, summarizeDay, totalOunces, type Moment, type Unit } from "./moments";
 import type { VisitKind } from "./visits";
 
@@ -11,15 +12,19 @@ export type SheetNote = { kind: string; provider: string | null; date: string; s
 
 export type SheetInput = {
   childName: string;
+  /** Which sections the person's journey includes. Little Steps when not given. */
+  journey?: JourneyConfig;
   visit: SheetVisit;
   today: string;
   unit: Unit;
-  medicines: { name: string; dose: string | null; when_to_give: string | null }[];
+  medicines: { name: string; dose: string | null; when_to_give: string | null; times?: string[] }[];
   /** Weigh-ins and the last 14 days of moments, for this child. */
   moments: Moment[];
   /** Visits with notes from the last 90 days, for this child. */
   notes: SheetNote[];
   practice: { instruction: string; provider: string | null }[];
+  /** Equipment the child uses (a feeding pump, oxygen), when the person may see it. */
+  equipment?: { name: string; details: string | null }[];
   questions: { text: string; for_whom: string | null }[];
 };
 
@@ -30,30 +35,40 @@ const said = (n: SheetNote) => [n.summary, n.homework ? `At home: ${n.homework}`
 
 export function buildVisitSheet(s: SheetInput): VisitSheet {
   const { visit, today } = s;
+  const include = (s.journey ?? LITTLE_STEPS).visitSheet;
   const sections: VisitSheet["sections"] = [];
   const add = (title: string, items: string[], none: string) => sections.push({ title, items: items.length ? items : [none] });
 
-  add("Current medicines", s.medicines.map((m) => [m.name, m.dose, m.when_to_give].filter(Boolean).join(", ")), "None listed");
+  add(
+    "Current medicines",
+    s.medicines.map((m) => [m.name, m.dose, (m.times ?? []).map(fmtTime).join(" and "), m.when_to_give].filter(Boolean).join(", ")),
+    "None listed",
+  );
+  if (s.equipment?.length) sections.push({ title: "Equipment", items: s.equipment.map((e) => [e.name, e.details].filter(Boolean).join(": ")) });
 
   const weights = s.moments
     .filter((m) => m.type === "weigh_in" && totalOunces(m.details) > 0 && m.date >= addDays(today, -60))
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((m) => `${short(m.date)}: ${fmtWeight(totalOunces(m.details))}${m.note ? ` (${m.note})` : ""}`);
-  add("Weight, last 60 days", weights, "No weigh ins logged");
+  if (include.weight) add("Weight, last 60 days", weights, "No weigh ins logged");
 
-  const days = Array.from({ length: 7 }, (_, i) => addDays(today, i - 7));
-  sections.push({
-    title: "Meals, last 7 days (including night feeds)",
-    items: days.map((d) => {
-      const total = summarizeDay(s.moments, d, s.unit, null).meals.total;
-      return `${fmtDay(d)}: ${total ? fmtAmount(total, s.unit) : "not logged"}`;
-    }),
-  });
+  if (include.meals) {
+    const days = Array.from({ length: 7 }, (_, i) => addDays(today, i - 7));
+    sections.push({
+      title: "Meals, last 7 days (including night feeds)",
+      items: days.map((d) => {
+        const total = summarizeDay(s.moments, d, s.unit, null).meals.total;
+        return `${fmtDay(d)}: ${total ? fmtAmount(total, s.unit) : "not logged"}`;
+      }),
+    });
+  }
 
-  const nights = newestFirst(s.moments.filter((m) => m.type === "night_feed" && m.date >= addDays(today, -7))).map(
-    (m) => `${short(m.date)}: ${MOMENTS.night_feed.line(m)}`,
-  );
-  add("Night feeds, last 7 nights", nights, "None logged");
+  if (include.nightFeeds) {
+    const nights = newestFirst(s.moments.filter((m) => m.type === "night_feed" && m.date >= addDays(today, -7))).map(
+      (m) => `${short(m.date)}: ${MOMENTS.night_feed.line(m)}`,
+    );
+    add("Night feeds, last 7 nights", nights, "None logged");
+  }
 
   const watch = newestFirst(s.moments.filter((m) => m.type === "nurse_note" && m.details.concerns && m.date >= addDays(today, -14))).map(
     (m) => `${short(m.date)}: ${m.details.concerns}`,

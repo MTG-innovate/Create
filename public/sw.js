@@ -1,4 +1,4 @@
-// Little Steps service worker: shows reminders and opens the right page when
+// JOSIA Care service worker: shows reminders and opens the right page when
 // one is tapped. It caches nothing, so health data never sits on the phone
 // outside the app itself.
 
@@ -10,7 +10,7 @@ self.addEventListener("push", (event) => {
     data = { body: event.data ? event.data.text() : "" };
   }
   event.waitUntil(
-    self.registration.showNotification(data.title || "Little Steps", {
+    self.registration.showNotification(data.title || "JOSIA Care", {
       body: data.body || "",
       icon: "/icon-192.png",
       badge: "/badge-96.png",

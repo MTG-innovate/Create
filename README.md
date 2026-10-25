@@ -1,8 +1,11 @@
-# Little Steps
+# JOSIA Care
 
-One warm, shared place for families caring for a baby or toddler who came home
-from the NICU. See `docs/BUILD_BRIEF.pdf` for the product and
-`docs/little-steps-prototype.html` for every screen, word and behavior.
+No one should carry care alone. JOSIA Care is one warm, shared place where a
+Care Circle of family and helpers looks after someone together. Its first care
+journey, **Little Steps**, is for families caring for a
+baby or toddler who came home from the NICU. See `docs/BUILD_BRIEF.pdf` for the
+product and `docs/little-steps-prototype.html` for every Little Steps screen,
+word and behavior.
 
 **Build status:** step 8 of 9. Done: data model, sign in, families,
 invitations, roles and family separation (step 1); visits with true weekly
@@ -12,8 +15,12 @@ practice at home, medicines, settings and the child's photo (step 5); questions 
 visit sheet, ready to show, print or copy (step 6); AI capture of a nurse
 text, a therapy handoff or a doctor visit summary, always checked by a person
 before it saves (step 7); reminders on each person's phone for visits and the
-night feed, and Little Steps can be added to the home screen (step 8).
-Everything updates live for everyone in the family.
+night feed, and the app can be added to the home screen (step 8); the JOSIA
+Care name, Care Circles and care journeys, with Little Steps as the first; and
+the everyday essentials for a baby's life: corrected age, medicine times with a
+"Medicines today" checklist, an emergency card, a pumping log, and equipment and
+supplies with reorder dates. Everything updates live for everyone in the Care
+Circle.
 
 ## Stack
 
@@ -21,9 +28,11 @@ Everything updates live for everyone in the family.
 - Supabase: Postgres with row level security, Auth (email link), private Storage
 - Vitest for unit and database tests
 
-## How family data is kept separate
+## How each Care Circle's data is kept separate
 
-The database enforces it, not the app code. `supabase/migrations` holds the rules:
+A Care Circle is a `families` row in the database, and the person receiving
+care is a `children` row; the screens use the new words, the tables keep their
+names. The database enforces separation, not the app code. `supabase/migrations` holds the rules:
 
 - Every record has a `family_id`. A signed-in person reaches a family's records
   only through their row in `family_members`.
@@ -118,7 +127,7 @@ Reminders (`src/lib/reminders.ts`, `src/app/api/reminders/route.ts`) are turned
 on by each person, phone by phone, in Settings: the evening before a visit
 (from 7 PM), about an hour before, and the night feed at a time they pick until
 someone logs it. Reminders show the kind of visit and the time, never notes.
-On iPhone they work once Little Steps is added to the Home Screen.
+On iPhone they work once JOSIA Care is added to the Home Screen.
 
 To send them, set the VAPID keys and `REMINDER_SECRET` (see `.env.example`),
 add the secret's hash to the database once:
@@ -135,6 +144,33 @@ select cron.schedule('little-steps-reminders', '*/5 * * * *', $$
   select net.http_get('https://<your app>/api/reminders', headers := jsonb_build_object('Authorization', 'Bearer <REMINDER_SECRET>'))
 $$);
 ```
+
+The everyday essentials, for a baby home from the NICU:
+
+- **Corrected age.** With a due date in Settings, Home shows the child's age
+  from the birthday and the corrected age from the due date
+  (`correctedAgeText` in `src/lib/dates.ts`), until age 3.
+- **Medicines today.** A medicine can have up to four times of day. Each time is
+  a dose to tick off on Home, saved as a diary moment, so everyone sees who gave
+  it and when (`src/lib/medicines-today.ts`). Doses and the medicine list change
+  only by hand, never by AI.
+- **Emergency card** (`src/lib/emergency-card.ts`): allergies, conditions,
+  medicines, equipment, the plan, the preferred hospital and the care team on
+  one page, with Call 911 and Copy card. Owners and family fill it in; everyone
+  in the Care Circle can read it, with only the parts they may see.
+- **Pumping** is a diary moment. Its tile joins Home once someone logs a session.
+- **Equipment and supplies** (`supplies`, under the medicines care area): the
+  feeding pump, oxygen, tube sizes and formula, with who to call and a gentle
+  "Reorder by" reminder (`src/lib/supplies.ts`). Equipment shows on the
+  emergency card and the visit sheet.
+
+Care journeys (`src/lib/journeys.ts`) are the start of JOSIA Care: each person
+receiving care follows one journey (`children.journey`), which decides the Home
+tiles, the diary kinds, the visit types, the visit sheet and how AI capture
+describes the person. Only Little Steps is built so far, and everyone is in it;
+its settings are exactly what the app did before, and a test keeps them so.
+Everyday Progress and Care Together come later. Risky migrations come with an
+undo script in `supabase/rollbacks`, which the database tests run.
 
 `test:db:local` uses `tests/db/supabase-shim.sql` to stand in for Supabase's
 `auth` and `storage` schemas. CI runs the database tests against real Supabase.

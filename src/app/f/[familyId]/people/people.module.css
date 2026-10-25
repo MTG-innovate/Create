@@ -7,3 +7,5 @@
 .areas tbody th { font-weight: 400; }
 .member summary { cursor: pointer; color: var(--accent-text); font-weight: 700; padding: 8px 0; }
 .edit { display: flex; flex-direction: column; gap: 14px; padding-top: 8px; }
+/* Each tick box is a full-size tap target, not just the small square. */
+.tick { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin: 0 auto; cursor: pointer; }

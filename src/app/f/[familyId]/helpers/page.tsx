@@ -2,8 +2,9 @@ import Link from "next/link";
 import { CopyButton } from "@/components/copy-button";
 import { LiveRefresh } from "@/components/live-refresh";
 import { canEdit, canView } from "@/lib/access";
-import { fmtDay } from "@/lib/dates";
-import { loadMedicines, loadPractice, loadTeam, type PracticeItem } from "@/lib/helpers-data";
+import { fmtDay, fmtTime, todayIn } from "@/lib/dates";
+import { loadMedicines, loadPractice, loadSupplies, loadTeam, type PracticeItem } from "@/lib/helpers-data";
+import { reorderStatus } from "@/lib/supplies";
 import { getFamily } from "@/lib/session";
 
 /** The prototype's Helpers tab (vMore): the care team, practice at home, medicines and helpful numbers. */
@@ -17,11 +18,13 @@ export default async function HelpersPage({ params }: PageProps<"/f/[familyId]/h
   const add = (kind: string) => `${base}/${kind}/new`;
   const open = (kind: string, id: string) => `${base}/${kind}/${id}`;
 
-  const [team, practice, medicines] = await Promise.all([
+  const [team, practice, medicines, supplies] = await Promise.all([
     canView(me, "team") ? loadTeam(family.id) : null,
     canView(me, "practice") ? loadPractice(family.id) : null,
     canView(me, "medicines") ? loadMedicines(family.id) : null,
+    canView(me, "medicines") ? loadSupplies(family.id) : null,
   ]);
+  const today = todayIn(family.time_zone);
   const active = practice?.filter((p) => p.active) ?? [];
   const stopped = practice?.filter((p) => !p.active) ?? [];
   const byProvider = new Map<string, PracticeItem[]>();
@@ -45,6 +48,20 @@ export default async function HelpersPage({ params }: PageProps<"/f/[familyId]/h
         <p className="muted">Everyone who helps {name} grow, in one place.</p>
       </section>
 
+      <section className="card list">
+        {children.map((c) => (
+          <Link key={c.id} className="row" href={`/f/${family.id}/card?child=${c.id}`} style={{ textDecoration: "none", color: "var(--ink)" }}>
+            <span className="main">
+              <span className="title" style={{ display: "block" }}>
+                {c.name}&rsquo;s emergency card
+              </span>
+              <span className="sub">Allergies, medicines, equipment, doctors and the plan, ready for a sitter or the ER</span>
+            </span>
+            <span aria-hidden="true">›</span>
+          </Link>
+        ))}
+      </section>
+
       {team ? (
         <section>
           <div className="sec-head">
@@ -63,7 +80,7 @@ export default async function HelpersPage({ params }: PageProps<"/f/[familyId]/h
                     <div className="title">{t.name}</div>
                     {t.role ? <div className="sub">{t.role}</div> : null}
                     {t.phone ? (
-                      <a href={`tel:${t.phone.replace(/[^\d+]/g, "")}`} style={{ fontVariantNumeric: "tabular-nums", display: "inline-block", padding: "4px 0" }}>
+                      <a href={`tel:${t.phone.replace(/[^\d+]/g, "")}`} style={{ fontVariantNumeric: "tabular-nums" }}>
                         {t.phone}
                       </a>
                     ) : null}
@@ -140,7 +157,7 @@ export default async function HelpersPage({ params }: PageProps<"/f/[familyId]/h
                       {many ? ` · ${childName.get(m.child_id)}` : ""}
                     </span>
                     <span className="sub" style={{ display: "block" }}>
-                      {[m.dose, m.when_to_give].filter(Boolean).join(" · ")}
+                      {[m.dose, m.times.map(fmtTime).join(", "), m.when_to_give].filter(Boolean).join(" · ")}
                     </span>
                     {m.prescriber || m.pharmacy ? <span className="sub">{[m.prescriber, m.pharmacy].filter(Boolean).join(" · ")}</span> : null}
                   </span>
@@ -156,6 +173,55 @@ export default async function HelpersPage({ params }: PageProps<"/f/[familyId]/h
               Children&rsquo;s Healthcare of Atlanta guidance
             </a>
           </p>
+        </section>
+      ) : null}
+
+      {supplies ? (
+        <section>
+          <div className="sec-head">
+            <h2>Equipment and supplies</h2>
+            {canEdit(me, "medicines") ? (
+              <Link className="btn small primary" href={add("supplies")}>
+                + Supply
+              </Link>
+            ) : null}
+          </div>
+          {supplies.length ? (
+            <div className="card list">
+              {supplies.map((s) => {
+                const reorder = reorderStatus(s.last_ordered, s.reorder_days, today);
+                return (
+                  <Link key={s.id} className="row" href={open("supplies", s.id)} style={{ textDecoration: "none", color: "var(--ink)" }}>
+                    <span className="main">
+                      <span className="title" style={{ display: "block" }}>
+                        {s.name}
+                        {many ? ` · ${childName.get(s.child_id)}` : ""}
+                      </span>
+                      <span className="sub" style={{ display: "block" }}>
+                        {[s.category, s.details, s.supplier].filter(Boolean).join(" · ")}
+                      </span>
+                      {reorder ? (
+                        reorder.soon ? (
+                          <span className="chip" style={{ marginTop: 4, background: "var(--accent-soft)", color: "var(--accent-text)" }}>
+                            {reorder.text}
+                          </span>
+                        ) : (
+                          <span className="sub">{reorder.text}</span>
+                        )
+                      ) : null}
+                    </span>
+                    <span aria-hidden="true">›</span>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <Empty
+              text={`Keep ${name}'s feeding pump, oxygen, tube sizes and formula here, with who to call and when to reorder.`}
+              href={canEdit(me, "medicines") ? add("supplies") : null}
+              label="Add equipment or a supply"
+            />
+          )}
         </section>
       ) : null}
 
@@ -200,9 +266,9 @@ export default async function HelpersPage({ params }: PageProps<"/f/[familyId]/h
       </section>
 
       <p className="muted small" style={{ textAlign: "center" }}>
-        Little Steps helps the family stay organized. It is not medical advice. Follow your care team, and call 911 in an emergency.
+        JOSIA Care helps everyone in the Care Circle stay organized. It is not medical advice. Follow your care team, and call 911 in an emergency.
       </p>
-      <LiveRefresh familyId={family.id} tables={["team_contacts", "practice_items", "medicines"]} />
+      <LiveRefresh familyId={family.id} tables={["team_contacts", "practice_items", "medicines", "supplies"]} />
     </>
   );
 }

@@ -1,4 +1,4 @@
--- Demo family for local development only (`supabase start` / `supabase db reset`).
+-- Demo Care Circle for local development only (`supabase start` / `supabase db reset`).
 -- Josiah's name is used with permission; everything else here is invented.
 -- Sign in at http://127.0.0.1:3000 with one of these addresses and open the
 -- link from the local mail viewer at http://127.0.0.1:54324.
@@ -25,7 +25,7 @@ from auth.users u
 where u.email in ('parent@example.com', 'grandma@example.com', 'nurse@example.com');
 
 insert into public.families (id, name, time_zone, created_by)
-values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'Josiah''s family', 'America/New_York', '11111111-1111-4111-8111-111111111111');
+values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'Josiah''s Care Circle', 'America/New_York', '11111111-1111-4111-8111-111111111111');
 
 insert into public.children (family_id, name, birth_date, created_by)
 values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'Josiah', '2025-04-12', '11111111-1111-4111-8111-111111111111');

@@ -86,12 +86,12 @@ export async function sendTestReminder(_prev: FormState, form: FormData): Promis
   const v = z.object({ familyId: z.uuid(), deviceId: z.uuid() }).safeParse(Object.fromEntries(form));
   if (!v.success) return { error: "Something went wrong. Please try again." };
   const { children } = await getFamily(v.data.familyId);
-  if (!pushReady()) return { error: "Reminders are not set up for Little Steps yet." };
+  if (!pushReady()) return { error: "Reminders are not set up for JOSIA Care yet." };
   const supabase = await createClient();
   const { data } = await supabase.from("push_devices").select("endpoint, p256dh, auth_key").eq("id", v.data.deviceId).maybeSingle();
   if (!data) return { error: "Turn reminders on for this phone first." };
   const result = await sendPush(data, {
-    title: "Little Steps",
+    title: "JOSIA Care",
     body: `This is how reminders about ${children[0]?.name ?? "your little one"} will look.`,
     url: `/f/${v.data.familyId}/settings`,
     tag: "test",

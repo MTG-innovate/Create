@@ -27,7 +27,8 @@ const Base = z.object({
 });
 
 export async function saveRecord(_prev: FormState, form: FormData): Promise<FormState> {
-  const values = Object.fromEntries(form);
+  const values: Record<string, unknown> = Object.fromEntries(form);
+  values.times = form.getAll("times");
   const base = Base.safeParse(values);
   if (!base.success) return { error: "Something went wrong. Reload and try again." };
   const { familyId, kind, id, childId, next } = base.data;
@@ -81,4 +82,44 @@ export async function togglePractice(familyId: string, itemId: string, done: boo
   if (error) return { error: friendlyError(error) };
   revalidatePath(`/f/${familyId}`);
   return { done: done ? "Nice work" : "" };
+}
+
+/**
+ * Ticks or unticks one dose in "Medicines today" on Home. A tick adds a
+ * "medicine given" diary moment for that medicine and time; it never changes
+ * the medicine list.
+ */
+export async function toggleDose(familyId: string, medicineId: string, slot: string, given: boolean): Promise<FormState> {
+  const ids = z.object({ familyId: z.uuid(), medicineId: z.uuid(), slot: z.string().regex(/^\d{2}:\d{2}$/) }).safeParse({ familyId, medicineId, slot });
+  if (!ids.success) return { error: "Something went wrong. Reload and try again." };
+  const { family } = await getFamily(familyId);
+  const supabase = await createClient();
+  const today = todayIn(family.time_zone);
+  if (!given) {
+    const { error } = await supabase
+      .from("moments")
+      .delete()
+      .eq("family_id", familyId)
+      .eq("type", "medicine_given")
+      .eq("date", today)
+      .eq("details->>medicine_id", medicineId)
+      .eq("details->>slot", slot);
+    if (error) return { error: friendlyError(error) };
+    revalidatePath(`/f/${familyId}`);
+    return { done: "" };
+  }
+  const { data: medicine } = await supabase.from("medicines").select("child_id, name, dose").eq("id", medicineId).eq("family_id", familyId).maybeSingle();
+  if (!medicine) return { error: "That medicine was removed from the list." };
+  const now = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: family.time_zone }).format(new Date());
+  const { error } = await supabase.from("moments").insert({
+    family_id: familyId,
+    child_id: medicine.child_id,
+    type: "medicine_given",
+    date: today,
+    time: now,
+    details: { name: medicine.name, dose: medicine.dose, medicine_id: medicineId, slot },
+  });
+  if (error) return { error: friendlyError(error) };
+  revalidatePath(`/f/${familyId}`);
+  return { done: "Given" };
 }

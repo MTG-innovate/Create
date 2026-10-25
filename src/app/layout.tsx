@@ -6,9 +6,9 @@ const fredoka = Fredoka({ variable: "--font-fredoka", weight: ["500", "600"], su
 const atkinson = Atkinson_Hyperlegible({ variable: "--font-atkinson", weight: ["400", "700"], subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Little Steps",
-  description: "One warm place for your little one's care, shared with everyone who helps.",
-  appleWebApp: { title: "Little Steps", statusBarStyle: "default" },
+  title: "JOSIA Care",
+  description: "No one should carry care alone. One warm place to share care with everyone who helps.",
+  appleWebApp: { title: "JOSIA Care", statusBarStyle: "default" },
   icons: { apple: "/apple-touch-icon.png" },
 };
 

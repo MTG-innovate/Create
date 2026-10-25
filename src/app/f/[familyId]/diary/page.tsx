@@ -9,6 +9,7 @@ import { canEdit, canView } from "@/lib/access";
 import { addDays, dayLabel, isDay, minutesSince, todayIn } from "@/lib/dates";
 import { MOMENTS, summarizeDay } from "@/lib/moments";
 import { lastMeals, loadMoments, namesFor } from "@/lib/moments-data";
+import { dayTilesFor, journeyConfig } from "@/lib/journeys";
 import { getFamily } from "@/lib/session";
 
 export default async function DiaryPage({ params, searchParams }: PageProps<"/f/[familyId]/diary">) {
@@ -20,7 +21,7 @@ export default async function DiaryPage({ params, searchParams }: PageProps<"/f/
     return (
       <section className="card pad">
         <h1>Diary</h1>
-        <p className="muted">The family has not shared the diary with you. Ask an owner if you need to see it.</p>
+        <p className="muted">The diary has not been shared with you. Ask an owner if you need to see it.</p>
       </section>
     );
   }
@@ -76,6 +77,7 @@ export default async function DiaryPage({ params, searchParams }: PageProps<"/f/
 
       {canView(me, "diary") ? (
         <DayTiles
+          tiles={dayTilesFor(journeyConfig(child.journey), moments)}
           summary={summarizeDay(moments, date, family.feed_unit, last)}
           unit={family.feed_unit}
           childName={child.name}
@@ -106,7 +108,7 @@ export default async function DiaryPage({ params, searchParams }: PageProps<"/f/
         )}
       </section>
 
-      <AddMenu groups={addMenuGroups({ familyId: family.id, me, childName: child.name, childId: child.id, date, next })} />
+      <AddMenu groups={addMenuGroups({ familyId: family.id, me, childName: child.name, childId: child.id, journey: child.journey, date, next })} />
       <LiveRefresh familyId={family.id} tables={["moments"]} />
     </>
   );

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDays, ageText, dayLabel, daysBetween, fmtTime, greeting, hourIn, isDay, minutesSince, todayIn } from "./dates";
+import { addDays, ageText, correctedAgeText, dayLabel, daysBetween, fmtTime, greeting, hourIn, isDay, minutesSince, todayIn } from "./dates";
 
 describe("ageText", () => {
   const on = (s: string) => new Date(`${s}T12:00:00`);
@@ -16,6 +16,24 @@ describe("ageText", () => {
   it("is empty without a birth date or before birth", () => {
     expect(ageText(null)).toBe("");
     expect(ageText("2030-01-01", on("2026-01-01"))).toBe("");
+  });
+});
+
+describe("correctedAgeText", () => {
+  const on = (s: string) => new Date(`${s}T12:00:00`);
+  it("counts from the due date for a baby born early", () => {
+    // Born 10 weeks early.
+    expect(correctedAgeText("2025-04-12", "2025-06-21", on("2026-10-25"))).toBe("1 year, 4 months corrected");
+    expect(correctedAgeText("2025-04-12", "2025-06-21", on("2025-06-01"))).toBe("Due date in 3 weeks");
+    expect(correctedAgeText("2025-04-12", "2025-06-21", on("2025-06-20"))).toBe("Due date in 1 week");
+    expect(correctedAgeText("2025-04-12", "2025-06-21", on("2025-06-21"))).toBe("0 months corrected");
+  });
+
+  it("is not shown for a baby born near the due date, without dates, or from age 3", () => {
+    expect(correctedAgeText("2025-04-12", "2025-04-26", on("2025-10-01"))).toBe("");
+    expect(correctedAgeText(null, "2025-06-21")).toBe("");
+    expect(correctedAgeText("2025-04-12", null)).toBe("");
+    expect(correctedAgeText("2025-04-12", "2025-06-21", on("2028-04-12"))).toBe("");
   });
 });
 

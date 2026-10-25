@@ -2,6 +2,7 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { SCHEMAS, capturePrompt, type CaptureMode, type Extracted } from "./capture";
+import type { JourneyConfig } from "./journeys";
 
 // The only place the app talks to Claude. It runs on the server, reads the key
 // from the server's environment, and sends just the pasted words or photo.
@@ -19,10 +20,10 @@ export class CaptureError extends Error {
 
 export async function extract<M extends CaptureMode>(
   mode: M,
-  input: { text: string; photo: Photo | null; kind: string; today: string },
+  input: { text: string; photo: Photo | null; kind: string; today: string; person: JourneyConfig["aiPerson"] },
 ): Promise<Extracted<M>> {
   const client = new Anthropic({ maxRetries: 1, timeout: 60_000 });
-  const prompt = capturePrompt(mode, { today: input.today, kind: input.kind, photo: Boolean(input.photo), hasText: Boolean(input.text) });
+  const prompt = capturePrompt(mode, { today: input.today, kind: input.kind, photo: Boolean(input.photo), hasText: Boolean(input.text), person: input.person });
   const content: Anthropic.Beta.BetaContentBlockParam[] = [];
   if (input.photo) content.push({ type: "image", source: { type: "base64", media_type: input.photo.mediaType, data: input.photo.base64 } });
   content.push({ type: "text", text: input.text ? `${prompt}\n\n<update>\n${input.text}\n</update>` : prompt });

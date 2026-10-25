@@ -16,6 +16,7 @@ import {
 } from "@/lib/capture";
 import { CaptureError, claudeReady, extract, type Photo } from "@/lib/claude";
 import { todayIn } from "@/lib/dates";
+import { journeyConfig } from "@/lib/journeys";
 import { getFamily } from "@/lib/session";
 import type { Visit } from "@/lib/visits";
 import { loadVisits } from "@/lib/visits-data";
@@ -41,7 +42,7 @@ export async function sortCapture(_: CaptureState, form: FormData): Promise<Capt
   if (!isCaptureMode(mode)) return { error: "Something went wrong. Please try again." };
   const { family, children, me } = await getFamily(familyId);
   if (!canEdit(me, CAPTURE[mode].area)) return { error: "You can see this, but not add to it." };
-  if (!claudeReady()) return { error: "Claude is not set up for Little Steps yet, so type it in instead." };
+  if (!claudeReady()) return { error: "Claude is not set up for JOSIA Care yet, so type it in instead." };
 
   const text = String(form.get("text") ?? "").trim().slice(0, MAX_TEXT);
   const file = form.get("photo");
@@ -59,18 +60,20 @@ export async function sortCapture(_: CaptureState, form: FormData): Promise<Capt
 
   const today = todayIn(family.time_zone);
   const kindAsked = String(form.get("kind") ?? "");
-  const childId = children.find((c) => c.id === form.get("childId"))?.id ?? children[0].id;
+  const child = children.find((c) => c.id === form.get("childId")) ?? children[0];
+  const childId = child.id;
+  const person = journeyConfig(child.journey).aiPerson;
   const raw = text || "(from a photo)";
 
   try {
     if (mode === "nurse") {
-      const r = await extract("nurse", { text, photo, kind: "", today });
+      const r = await extract("nurse", { text, photo, kind: "", today, person });
       return { nurse: nurseDraft(r, raw, { today, now: String(form.get("now") ?? ""), unit: family.feed_unit }) };
     }
     const draft =
       mode === "therapy"
-        ? therapyDraft(await extract("therapy", { text, photo, kind: kindAsked, today }), (THERAPY_KINDS as readonly string[]).includes(kindAsked) ? kindAsked : THERAPY_KINDS[0], today)
-        : visitDraft(await extract("visit", { text, photo, kind: kindAsked, today }), kindAsked, today);
+        ? therapyDraft(await extract("therapy", { text, photo, kind: kindAsked, today, person }), (THERAPY_KINDS as readonly string[]).includes(kindAsked) ? kindAsked : THERAPY_KINDS[0], today)
+        : visitDraft(await extract("visit", { text, photo, kind: kindAsked, today, person }), kindAsked, today);
     const { visits } = await loadVisits(family.id, draft.date, draft.date);
     const match = visits.find((v) => v.kind === draft.kind && v.child_id === childId) ?? null;
     // Keep the provider the family already has on the planned visit.

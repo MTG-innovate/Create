@@ -13,6 +13,7 @@ const TABLES = [
   "team_contacts",
   "wins",
   "questions",
+  "supplies",
 ] as const;
 
 /**

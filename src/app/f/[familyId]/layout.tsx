@@ -32,7 +32,7 @@ export default async function FamilyLayout({ children, params }: LayoutProps<"/f
                     </Link>
                   ))}
                   <Link className="row" href="/welcome">
-                    Start another family
+                    Start another Care Circle
                   </Link>
                 </div>
               </details>
@@ -55,7 +55,7 @@ export default async function FamilyLayout({ children, params }: LayoutProps<"/f
             // Every page is about a child; after the last child's data is deleted, start again here.
             <section className="card pad">
               <h1>Who are we caring for?</h1>
-              <p className="muted">This family has no little one in it right now.</p>
+              <p className="muted">Add the person this Care Circle cares for.</p>
               {me.role === "owner" || me.role === "family" ? (
                 <ActionForm action={addChild} submit="Add" pendingLabel="Adding…">
                   <input type="hidden" name="familyId" value={family.id} />

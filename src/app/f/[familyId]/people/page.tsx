@@ -35,11 +35,11 @@ export default async function PeoplePage({ params }: PageProps<"/f/[familyId]/pe
       </section>
 
       <section>
-        <h2>In this family</h2>
+        <h2>In this Care Circle</h2>
         <div className="card list">
           {members.map((m) => {
             const isMe = m.user_id === user.id;
-            const name = nameOf.get(m.user_id) || emailOf.get(m.user_id) || "Someone in the family";
+            const name = nameOf.get(m.user_id) || emailOf.get(m.user_id) || "Someone in the Care Circle";
             return (
               <div key={m.user_id} className="row">
                 <div className="main">
@@ -65,7 +65,7 @@ export default async function PeoplePage({ params }: PageProps<"/f/[familyId]/pe
                         </ActionForm>
                         <ActionForm
                           action={removeMember}
-                          submit={`Remove ${name} from the family`}
+                          submit={`Remove ${name} from the Care Circle`}
                           confirm="Tap again to remove"
                           pendingLabel="Removing…"
                           danger
@@ -113,7 +113,7 @@ export default async function PeoplePage({ params }: PageProps<"/f/[familyId]/pe
       ) : null}
 
       <section>
-        <ActionForm action={removeMember} submit="Leave this family" confirm="Tap again to leave" pendingLabel="Leaving…" danger>
+        <ActionForm action={removeMember} submit="Leave this Care Circle" confirm="Tap again to leave" pendingLabel="Leaving…" danger>
           <input type="hidden" name="familyId" value={family.id} />
           <input type="hidden" name="userId" value={user.id} />
         </ActionForm>

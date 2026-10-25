@@ -28,7 +28,7 @@ export default async function JourneyPage({ params, searchParams }: PageProps<"/
     return (
       <section className="card pad">
         <h1>{name}&rsquo;s journey</h1>
-        <p className="muted">The family has not shared this with you. Ask an owner if you need to see it.</p>
+        <p className="muted">This has not been shared with you. Ask an owner if you need to see it.</p>
       </section>
     );
   }

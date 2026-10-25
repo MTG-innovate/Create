@@ -12,6 +12,25 @@ export function ageText(birthDate: string | null | undefined, today: Date = new 
   return `${plural(years, "year")}${rest ? `, ${plural(rest, "month")}` : ""} old`;
 }
 
+/**
+ * A preemie's corrected age, counted from the due date: "1 year, 4 months
+ * corrected", or "Due date in 3 weeks" before it. Empty when the baby came
+ * within three weeks of the due date, or is 3 or older (corrected age stops
+ * mattering by then).
+ */
+export function correctedAgeText(birthDate: string | null | undefined, dueDate: string | null | undefined, today: Date = new Date()): string {
+  if (!birthDate || !dueDate || daysBetween(birthDate, dueDate) < 21) return "";
+  const [y, m, d] = birthDate.split("-").map(Number);
+  if (today >= new Date(y + 3, m - 1, d)) return "";
+  const day = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  const toGo = daysBetween(day, dueDate);
+  if (toGo > 0) {
+    const weeks = Math.ceil(toGo / 7);
+    return `Due date in ${weeks} week${weeks === 1 ? "" : "s"}`;
+  }
+  return ageText(dueDate, today).replace(/ old$/, " corrected");
+}
+
 export function greeting(hour: number): string {
   return hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 }

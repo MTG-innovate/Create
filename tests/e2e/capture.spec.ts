@@ -52,7 +52,7 @@ test("a doctor visit summary fills in the visit, keeps medicine changes in the n
   await parent.getByRole("button", { name: "Save" }).click();
 
   // The medicine list is untouched.
-  await parent.getByRole("link", { name: "Helpers", exact: true }).click();
+  await parent.getByRole("link", { name: "Care Circle", exact: true }).click();
   await expect(parent.getByText(/Famotidine/)).toHaveCount(0);
 });
 

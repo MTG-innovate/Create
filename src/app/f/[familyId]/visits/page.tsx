@@ -20,7 +20,7 @@ export default async function VisitsPage({ params, searchParams }: PageProps<"/f
     return (
       <section className="card pad">
         <h1>Visits</h1>
-        <p className="muted">The family has not shared visits with you. Ask an owner if you need to see them.</p>
+        <p className="muted">Visits have not been shared with you. Ask an owner if you need to see them.</p>
       </section>
     );
   }
