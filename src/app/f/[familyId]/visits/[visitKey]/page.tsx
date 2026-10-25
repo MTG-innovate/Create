@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { canEdit, canView } from "@/lib/access";
 import { dayLabel, todayIn } from "@/lib/dates";
@@ -19,6 +20,14 @@ export default async function VisitPage({ params, searchParams }: PageProps<"/f/
       <section>
         <p className="eyebrow">{dayLabel(visit.date, todayIn(family.time_zone))}</p>
         <h1>{visit.title || friendlyKind(visit.kind)}</h1>
+        {visit.date >= todayIn(family.time_zone) ? (
+          <div className="actions">
+            <Link className="btn primary" href={`/f/${family.id}/visits/${encodeURIComponent(visit.key)}/sheet`}>
+              Visit sheet
+            </Link>
+            <span className="muted small">Everything this helper should know, ready to show or copy</span>
+          </div>
+        ) : null}
       </section>
       <VisitForm
         familyId={family.id}

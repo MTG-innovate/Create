@@ -8,6 +8,7 @@ import { Encouragement } from "@/components/home/encouragement";
 import { HelpersSaying } from "@/components/home/helpers-saying";
 import { MomentForYou } from "@/components/home/moment-for-you";
 import { PracticeToday } from "@/components/home/practice-today";
+import { QuestionsToAsk } from "@/components/home/questions";
 import { Bubble } from "@/components/icons";
 import { BrightSpots } from "@/components/journey/bright-spots";
 import journey from "@/components/journey/journey.module.css";
@@ -62,6 +63,7 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
   const checkers = await namesFor(checks.map((c) => c.created_by), user.id);
   const helperNotes = seesVisits ? await latestVisitNotes(family.id, today) : [];
   const allNames = children.map((c) => c.name).join(" and ");
+  const questions = canView(me, "questions") ? await openQuestions(family.id) : [];
 
   return (
     <>
@@ -132,7 +134,7 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
           names={names}
           nurseVisitTime={week?.visits.find((v) => v.date === today && v.kind === "In-home nurse")?.time ?? undefined}
           nurseVisitToday={Boolean(week?.visits.some((v) => v.date === today && v.kind === "In-home nurse"))}
-          addHref={canEdit(me, "nurse_notes") ? newMomentHref(family.id, "nurse_note", today, first.id, here) : null}
+          addHref={canEdit(me, "nurse_notes") ? `/f/${family.id}/capture/nurse?${new URLSearchParams({ child: first.id, next: here })}` : null}
         />
       ) : null}
 
@@ -172,10 +174,12 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
         </section>
       ) : null}
 
+      <QuestionsToAsk familyId={family.id} questions={questions} canAdd={canEdit(me, "questions")} />
+
       {caregiver ? <MomentForYou today={today} name={allNames} /> : null}
 
       <AddMenu groups={addMenuGroups({ familyId: family.id, me, childName: first.name, childId: first.id, date: today, next: here })} />
-      <LiveRefresh familyId={family.id} tables={["visits", "visit_series", "moments", "wins", "practice_checks", "practice_items", "children", "families"]} />
+      <LiveRefresh familyId={family.id} tables={["visits", "visit_series", "moments", "wins", "practice_checks", "practice_items", "children", "families", "questions"]} />
     </>
   );
 }
@@ -197,7 +201,7 @@ function NurseSection(props: {
         <h2>From {props.childName}&rsquo;s nurse</h2>
         {props.addHref ? (
           <Link className="linkbtn" href={props.addHref}>
-            + Add the update
+            + Add the nurse’s text
           </Link>
         ) : null}
       </div>
@@ -231,6 +235,12 @@ function UpSince({ familyId, up }: { familyId: string; up: ReturnType<typeof upS
       <span className={journey.starkey} aria-hidden="true" /> Up {up.gain} since {up.since === "birth" ? "birth" : fmtDay(up.since, { month: "short", day: "numeric" })}
     </Link>
   );
+}
+
+async function openQuestions(familyId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("questions").select("id, text, for_whom").eq("family_id", familyId).eq("done", false).order("created_at");
+  return data ?? [];
 }
 
 async function countMembers(familyId: string): Promise<number> {

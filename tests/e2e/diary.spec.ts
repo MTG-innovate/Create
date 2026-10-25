@@ -8,10 +8,11 @@ test("a meal and a diaper logged by a parent update grandma's tiles within secon
   const grandma = await signIn(browser, "grandma@example.com");
 
   await expect(grandma.getByRole("heading", { name: "Josiah’s day so far" })).toBeVisible();
-  await expect(grandma.getByRole("link", { name: /^Meals: Nothing yet/ })).toBeVisible();
+  // Meals may show the nurse's total from earlier tests until someone logs a meal.
+  await expect(grandma.getByRole("link", { name: /^Meals: / })).toBeVisible();
 
   // Tapping the Meals tile adds a meal.
-  await parent.getByRole("link", { name: /^Meals: Nothing yet/ }).click();
+  await parent.getByRole("link", { name: /^Meals: / }).click();
   await parent.getByLabel("Amount").fill("3");
   await parent.getByLabel("How Josiah ate").selectOption("Bottle");
   await parent.screenshot({ path: `${shots}/6-new-meal.png`, fullPage: true });
@@ -52,7 +53,8 @@ test("a night feed's total is worked out from the pump rate and the times", asyn
 test("a nurse's note shows on Home, with things to keep an eye on in a soft box", async ({ browser }) => {
   const nurse = await signIn(browser, "nurse@example.com");
   await nurse.getByRole("button", { name: "Add a moment" }).click();
-  await nurse.getByRole("dialog").getByRole("link", { name: "Nurse note" }).click();
+  await nurse.getByRole("dialog").getByRole("link", { name: "Nurse text" }).click();
+  await nurse.getByRole("button", { name: "Type it in myself" }).click();
   await nurse.getByLabel("Nurse name").fill("Nurse Pat");
   await nurse.getByLabel("Ate and drank, total").fill("24");
   await nurse.getByLabel("Keep an eye on").fill("A little congested after naps");

@@ -5,6 +5,8 @@ import { defineConfig, devices } from "@playwright/test";
 // supabase/seed.sql and read sign-in emails from the local mail viewer.
 export default defineConfig({
   testDir: "tests/e2e",
+  // A stand-in for the Claude API (tests/e2e/mock-claude.ts).
+  globalSetup: "./tests/e2e/global-setup.ts",
   timeout: 90_000,
   expect: { timeout: 15_000 },
   fullyParallel: false,

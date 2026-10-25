@@ -1,0 +1,11 @@
+/* The prototype's .vsheet */
+.sheet { display: flex; flex-direction: column; gap: 12px; padding: 16px; }
+.title { font-size: 1.3rem; }
+.sec ul { margin: 4px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 3px; }
+.sec li { overflow-wrap: anywhere; }
+
+/* Printing the sheet gives a clean page to hand over at check in. */
+@media print {
+  .noPrint { display: none !important; }
+  .sheet { border: 0; box-shadow: none; padding: 0; }
+}
