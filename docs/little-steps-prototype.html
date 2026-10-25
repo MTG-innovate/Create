@@ -1,0 +1,1094 @@
+<title>Little Steps Care Tracker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fredoka:wght@500;600&display=swap">
+<style>
+/* Layout: phone-first app shell. Sticky name header, one scrolling column of sections, fixed bottom tab bar. */
+/* Layout: phone-first app shell. Warm photo hero on Today, one scrolling column of sections, fixed bottom tab bar. */
+:root{
+  --bg:#FFF8F1; --surface:#FFFFFF; --sunk:#FCEEE1; --ink:#3A2A20; --muted:#7A6354; --line:#F0DCCB;
+  --accent:#F4B33F; --accent-ink:#3A2A20; --accent-soft:#FFF0D2; --accent-text:#A3610A;
+  --hero1:#FFE2CC; --hero2:#FFF1C6; --ring:#FFFFFF;
+  --feed:#E2763F; --diaper:#5E9E5A; --sleep:#8A78C6; --exercise:#2F9C92; --weight:#D35E89; --med:#A8569C; --sky:#E4F1FB; --lav:#EFEAFB; --nurse:#3F8CC7; --note:#958171;
+  --danger:#C23B30; --ok:#3E8E54;
+  --display:"Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1D1612; --surface:#271E18; --sunk:#32271F; --ink:#F7EBE1; --muted:#C4AE9D; --line:#423429;
+    --accent:#F6BE57; --accent-ink:#2A1E14; --accent-soft:#3B2D1B; --accent-text:#F6BE57;
+    --hero1:#3A2619; --hero2:#3A3018; --ring:#271E18;
+    --feed:#F09A68; --diaper:#93C98D; --sleep:#B5A8EC; --exercise:#62C7BC; --weight:#EE93B3; --med:#E2A2D9; --sky:#1C2A36; --lav:#272238; --nurse:#7DB7E6; --note:#B9A797;
+    --danger:#F48C82; --ok:#86CF98; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1D1612; --surface:#271E18; --sunk:#32271F; --ink:#F7EBE1; --muted:#C4AE9D; --line:#423429;
+    --accent:#F6BE57; --accent-ink:#2A1E14; --accent-soft:#3B2D1B; --accent-text:#F6BE57;
+    --hero1:#3A2619; --hero2:#3A3018; --ring:#271E18;
+    --feed:#F09A68; --diaper:#93C98D; --sleep:#B5A8EC; --exercise:#62C7BC; --weight:#EE93B3; --med:#E2A2D9; --sky:#1C2A36; --lav:#272238; --nurse:#7DB7E6; --note:#B9A797;
+    --danger:#F48C82; --ok:#86CF98; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:radial-gradient(60rem 30rem at -10% -5%,var(--hero1),transparent 60%),radial-gradient(40rem 30rem at 110% 20%,var(--accent-soft),transparent 60%),radial-gradient(40rem 30rem at 50% 110%,var(--lav),transparent 60%),var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent-text);outline-offset:2px}
+
+.band{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.inner{max-width:640px;margin:0 auto}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+header.top .inner{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px 12px}
+.babyname{font-family:var(--display);font-weight:600;font-size:1.4rem;line-height:1.1;margin:0;text-wrap:balance;min-width:0;overflow-wrap:anywhere}
+.datechip{color:var(--muted);font-size:.9rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+main.band .inner{display:flex;flex-direction:column;gap:22px;padding-block:18px calc(104px + env(safe-area-inset-bottom,0px))}
+
+section{display:flex;flex-direction:column;gap:10px;min-width:0}
+.sec-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+h2{font-family:var(--display);font-weight:600;font-size:1.25rem;margin:0;text-wrap:balance}
+h3{margin:0;font-size:1rem}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.muted{color:var(--muted)}
+.small{font-size:.875rem}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:0 3px 14px rgba(140,80,30,.06)}
+.card.list{overflow:hidden}
+.list{display:flex;flex-direction:column}
+.row{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-top:1px solid var(--line);min-width:0;text-align:left;background:none;border-left:0;border-right:0;border-bottom:0;width:100%}
+.row:first-child{border-top:0}
+button.row{cursor:pointer}
+button.row:hover{background:var(--sunk)}
+.row .main{flex:1;min-width:0}
+.row .title{font-weight:700;overflow-wrap:anywhere}
+.row .sub{color:var(--muted);font-size:.875rem;overflow-wrap:anywhere}
+.row .side{color:var(--muted);font-size:.875rem;white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
+.stripe{width:4px;align-self:stretch;border-radius:4px;flex:none}
+
+.datebox{flex:none;width:52px;text-align:center;border-radius:12px;background:var(--accent-soft);padding:6px 0;line-height:1.1}
+.datebox b{display:block;font-family:var(--display);font-weight:600;font-size:1.35rem;color:var(--accent-text)}
+.datebox span{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.chip i{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:700;cursor:pointer;min-height:40px}
+.btn:hover{background:var(--sunk)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.small{min-height:34px;padding:5px 12px;font-size:.875rem}
+.btn.danger{color:var(--danger);border-color:var(--danger);background:transparent}
+.btn.danger.armed{background:var(--danger);color:var(--surface)}
+.icon-btn{border:0;background:var(--sunk);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.3rem;line-height:1;flex:none}
+
+.quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.quick button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:12px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:.8rem;font-weight:700;min-width:0}
+.quick button:hover{background:var(--sunk)}
+.quick button i{width:12px;height:12px;border-radius:50%}
+.quick button span{overflow-wrap:anywhere;text-align:center}
+
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border-radius:var(--r);overflow:hidden;border:1px solid var(--line)}
+.stat{background:var(--surface);padding:12px 14px;min-width:0}
+.stat .k{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.stat .v{font-family:var(--display);font-weight:600;font-size:1.45rem;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat .d{font-size:.8rem;color:var(--muted)}
+
+.empty{padding:18px 16px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.empty p{margin:0;color:var(--muted);max-width:52ch}
+
+.check{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-top:1px solid var(--line);cursor:pointer}
+.check:first-child{border-top:0}
+.check input{width:22px;height:22px;margin:1px 0 0;accent-color:var(--accent-text);flex:none}
+.check .main{flex:1;min-width:0}
+.check.done .title{text-decoration:line-through;color:var(--muted)}
+
+.seg{display:inline-flex;background:var(--sunk);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:6px 14px;font-weight:700;cursor:pointer;color:var(--muted);font-size:.9rem}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+
+.daynav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.daynav .lbl{font-weight:700;text-align:center;flex:1}
+
+.chart{padding:12px 12px 6px;overflow-x:auto}
+.chart svg{display:block;width:100%;height:auto;max-width:100%}
+.chart .cap{display:flex;justify-content:space-between;gap:8px;padding:0 4px 6px;flex-wrap:wrap}
+
+.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere}
+.home{margin-top:6px;font-size:.92rem;padding:8px 10px;border-radius:8px;background:var(--accent-soft);overflow-wrap:anywhere}
+.card.nurse{display:flex;flex-direction:column;gap:12px;width:100%;text-align:left;padding:16px;cursor:pointer}
+.card.nurse:hover{background:var(--sunk)}
+.nhead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.card.nurse dl{display:grid;grid-template-columns:minmax(0,8.5rem) minmax(0,1fr);gap:6px 12px;margin:0}
+.card.nurse dt{font-size:.82rem;font-weight:700;color:var(--muted)}
+.card.nurse dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.watch{padding:10px 12px;border-radius:12px;background:var(--accent-soft);font-size:.95rem;overflow-wrap:anywhere}
+.nhead{align-items:center;flex-wrap:nowrap;justify-content:flex-start}
+.cap-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cap-btn{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--surface);cursor:pointer;text-align:left;min-width:0;min-height:96px}
+.cap-btn:hover{background:var(--sunk)}
+.cap-btn i{width:10px;height:10px;border-radius:50%}
+.cap-btn b{font-size:.98rem;overflow-wrap:anywhere}
+.cap-btn span{font-size:.78rem;color:var(--muted);overflow-wrap:anywhere}
+@media (max-width:380px){.cap-grid{grid-template-columns:1fr}.cap-btn{min-height:0;flex-direction:row;align-items:center;flex-wrap:wrap}}
+.vsheet{display:flex;flex-direction:column;gap:12px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px;overflow-y:auto;max-height:55vh}
+.vs-title{font-family:var(--display);font-weight:600;font-size:1.2rem}
+.vs-sec ul{margin:4px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
+.vs-sec li{overflow-wrap:anywhere}
+.who{display:flex;align-items:center;gap:10px;min-width:0}
+.avatar{flex:none;width:40px;height:40px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 2px var(--accent);display:block}
+.avatar img,.hero-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.initial{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--hero1),var(--hero2));color:var(--accent-text);font-family:var(--display);font-weight:600}
+.avatar .initial{font-size:1.1rem}
+.hero{flex-direction:row;align-items:center;gap:18px;flex-wrap:wrap;padding:18px;border-radius:22px;background:linear-gradient(135deg,var(--hero1),var(--hero2))}
+.hero-photo{flex:none;width:112px;height:112px;border-radius:50%;overflow:hidden;border:5px solid var(--ring);box-shadow:0 6px 18px rgba(120,70,20,.18);background:var(--surface);padding:0;cursor:default}
+button.hero-photo{cursor:pointer}
+.hero-photo .initial{font-size:2.6rem;flex-direction:column;gap:2px}
+.hero-photo .initial small{font-family:var(--body);font-size:.72rem;font-weight:700}
+.hero-text{flex:1 1 180px;min-width:0;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.hero-name{font-family:var(--display);font-weight:600;font-size:2rem;line-height:1.05;overflow-wrap:anywhere}
+.hero-text p{margin:0 0 6px;color:var(--muted)}
+.journey-hero{padding:20px 18px;border-radius:22px;background:linear-gradient(135deg,var(--hero1),var(--hero2));gap:8px}
+.journey-hero .big{font-family:var(--display);font-weight:600;font-size:2.4rem;line-height:1.05;color:var(--accent-text)}
+.journey-hero p{margin:0;max-width:52ch}
+.journey-hero .own{color:var(--muted)}
+.jh-stats{display:flex;gap:16px;flex-wrap:wrap;font-size:.92rem}
+.jh-stats b{font-family:var(--display);font-size:1.2rem;margin-right:2px}
+.win-pill{align-self:flex-start;border:0;cursor:pointer;background:var(--surface);color:var(--accent-text);font-weight:700;font-size:.85rem;padding:5px 12px;border-radius:999px;margin-bottom:6px;box-shadow:0 1px 3px rgba(120,70,20,.12)}
+.gain{flex:none;align-self:center;font-weight:700;font-size:.85rem;padding:3px 10px;border-radius:999px;background:var(--sunk);color:var(--muted);font-variant-numeric:tabular-nums}
+.gain.up{background:var(--accent-soft);color:var(--accent-text)}
+.winstar{flex:none;width:22px;height:22px;margin-top:1px;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+.starkey{display:inline-block;width:11px;height:11px;vertical-align:-1px;background:var(--accent);clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+.nightcard{display:flex;gap:12px;align-items:center;padding:14px;text-align:left;cursor:pointer;width:100%;background:var(--lav)}
+.nightcard .sub{color:var(--muted);font-size:.9rem}
+.stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+nav.tabs button{font-size:.68rem}
+.bubble{flex:none;width:38px;height:38px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;color:var(--c);background:color-mix(in srgb,var(--c) 16%,var(--surface))}
+.bubble svg{width:22px;height:22px}
+.linkbtn{border:0;background:none;color:var(--accent-text);font-weight:700;cursor:pointer;padding:4px 0;font-size:.92rem;text-decoration:none}
+.soft{box-shadow:none}
+.calm{margin:0;padding:14px 16px 16px;color:var(--muted)}
+.hero{position:relative;overflow:hidden;border-radius:28px;padding:22px 18px}
+.hero .deco{position:absolute;right:-8px;top:-10px;pointer-events:none;opacity:.85}
+.hero .deco svg{display:block;max-width:none}
+.hero-photo,.hero-text{position:relative}
+.hero-age{font-weight:700;color:var(--accent-text);margin-bottom:6px}
+.win-pill{display:inline-flex;align-items:center;gap:4px}
+.encourage{flex-direction:row;align-items:flex-start;gap:12px;padding:16px 18px;border-radius:22px;background:linear-gradient(135deg,var(--sky),var(--lav))}
+.enc-ic{flex:none;width:36px;height:36px;color:var(--accent-text);display:flex}
+.enc-ic svg{width:36px;height:36px}
+.enc-q{margin:0;font-family:var(--display);font-weight:500;font-size:1.15rem;line-height:1.35;text-wrap:balance}
+.enc-ref{margin-top:4px;font-size:.85rem;color:var(--muted);font-weight:700}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.wday{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border-radius:16px;border:1px solid var(--line);background:var(--surface);cursor:pointer;min-width:0}
+.wday .wd{font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;overflow:hidden;max-width:100%}
+.wday b{font-family:var(--display);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.wday .dots{display:flex;gap:3px;min-height:7px}
+.wday .dots i{width:6px;height:6px;border-radius:50%}
+.wday[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.wday[aria-pressed="true"] .wd{color:var(--accent-ink)}
+.tl-list{display:flex;flex-direction:column;padding:6px 0 8px}
+.tl{display:flex;align-items:flex-start;gap:12px;padding:10px 16px;border:0;background:none;text-align:left;width:100%;cursor:pointer}
+.tl:hover{background:var(--sunk)}
+.tl-time{flex:none;width:74px;white-space:nowrap;font-weight:700;font-size:.9rem;font-variant-numeric:tabular-nums;padding-top:1px}
+.tl-dot{flex:none;width:12px;height:12px;border-radius:50%;margin-top:5px}
+.tl-dot.big{width:14px;height:14px;margin-top:4px}
+.tl .main{flex:1;min-width:0}.tl .title{font-weight:700;overflow-wrap:anywhere}.tl .sub{color:var(--muted);font-size:.875rem;overflow-wrap:anywhere}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media (max-width:420px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:12px;border-radius:20px;border:1px solid var(--line);background:var(--surface);text-align:left;min-width:0;cursor:pointer}
+.tile:hover{background:var(--sunk)}
+.tile .bubble{width:32px;height:32px;border-radius:11px;margin-bottom:4px}.tile .bubble svg{width:19px;height:19px}
+.tk{font-size:.78rem;font-weight:700;color:var(--muted)}
+.tv{font-family:var(--display);font-weight:600;font-size:1.2rem;line-height:1.2;overflow-wrap:anywhere}
+.td{font-size:.78rem;color:var(--muted);overflow-wrap:anywhere}
+.bright{padding:4px 0 6px}
+.bright-in{display:flex;flex-direction:column;gap:6px;padding:12px 16px 4px}
+.bright-in label{font-weight:700;font-size:.9rem}
+.bright-row{display:flex;gap:8px}
+.bright-row input{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:9px 14px;min-height:42px}
+.bright-list{display:flex;flex-direction:column;padding:6px 0}
+.bright-item{display:flex;gap:12px;align-items:flex-start;padding:10px 16px;border:0;background:none;text-align:left;width:100%;cursor:pointer}
+.bright-item:hover{background:var(--sunk)}
+.bright-item .main{flex:1;min-width:0}.bright-item .title{font-weight:700;overflow-wrap:anywhere}.bright-item .sub{color:var(--muted);font-size:.85rem}
+.moment{padding:18px;border-radius:22px;background:var(--lav);gap:6px}
+.moment p{margin:0;max-width:52ch}.moment .m-big{font-family:var(--display);font-weight:500;font-size:1.15rem}
+.moment .small{color:var(--muted)}
+.team-intro p{margin:0;color:var(--muted);font-size:1.02rem}
+.add-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:380px){.add-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.add-tile{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:16px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:.8rem;font-weight:700;min-width:0;text-align:center}
+.add-tile:hover{background:var(--sunk)}
+.add-tile span{overflow-wrap:anywhere}
+.fab{position:fixed;z-index:7;right:max(18px,calc(env(safe-area-inset-right,0px) + 18px));bottom:calc(78px + env(safe-area-inset-bottom,0px));width:60px;height:60px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);box-shadow:0 8px 22px rgba(170,100,20,.35);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.fab svg{width:30px;height:30px;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;fill:none}
+@media (prefers-reduced-motion:no-preference){.fab:active{transform:scale(.94)}}
+.series{display:flex;gap:12px;align-items:flex-start;padding:14px 16px}
+.series .main{flex:1;min-width:0}.series .sub{color:var(--muted);font-size:.9rem}
+.confetti{position:fixed;inset:0;z-index:30;pointer-events:none}
+main.band .inner{gap:26px}
+.banner{padding:12px 14px;border-radius:12px;background:var(--accent-soft);font-size:.92rem}
+.progressbar{height:8px;border-radius:99px;background:var(--sunk);overflow:hidden}
+.progressbar span{display:block;height:100%;background:var(--ok);border-radius:99px}
+.sources{font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.sources a{color:var(--accent-text)}
+.phone{font-variant-numeric:tabular-nums;user-select:all}
+.foot{font-size:.82rem;color:var(--muted);text-align:center;max-width:52ch;margin:0 auto}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(4px,env(safe-area-inset-left,0px));padding-right:max(4px,env(safe-area-inset-right,0px))}
+nav.tabs button{flex:1;max-width:128px;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 2px 8px;color:var(--muted);font-size:.72rem;font-weight:700;cursor:pointer}
+nav.tabs button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs button[aria-current="page"]{color:var(--accent-text)}
+nav.tabs button[aria-current="page"] svg{fill:var(--accent-soft)}
+
+dialog.sheet{border:0;padding:0;background:var(--surface);color:var(--ink);width:min(560px,100%);max-width:100%;max-height:90vh;border-radius:18px 18px 0 0;margin:auto auto 0;box-shadow:0 -6px 30px rgba(0,0,0,.25)}
+@media (min-width:600px){dialog.sheet{border-radius:18px;margin:auto}}
+dialog.sheet::backdrop{background:rgba(10,20,28,.45)}
+.sheet form{display:flex;flex-direction:column;gap:14px;padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px))}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sheet-head h3{font-family:var(--display);font-weight:600;font-size:1.25rem}
+.fields{display:flex;flex-wrap:wrap;gap:12px}
+.field{display:flex;flex-direction:column;gap:4px;flex:1 1 100%;min-width:0}
+.field.half{flex:1 1 calc(50% - 6px)}
+.field label{font-size:.82rem;font-weight:700;color:var(--muted)}
+.field.checkrow{flex-direction:row;align-items:center;gap:10px}
+.field.checkrow input{width:22px;height:22px;accent-color:var(--accent-text)}
+.field input:not([type=checkbox]),.field select,.field textarea{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;min-height:44px}
+.field textarea{resize:vertical}
+.sheet-actions{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.sheet-actions .right{display:flex;gap:10px;margin-left:auto}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:700;font-size:.9rem;z-index:20;max-width:calc(100% - 32px)}
+@media (prefers-reduced-motion:no-preference){.toast{animation:pop .2s ease-out}@keyframes pop{from{opacity:0;transform:translate(-50%,8px)}}}
+</style>
+
+<header class="top band"><div class="inner">
+  <div class="who"><span class="avatar" id="avatar"></span><h1 class="babyname" id="babyName">Little one</h1></div>
+  <span class="datechip" id="todayChip"></span>
+</div></header>
+
+<main class="band"><div class="inner" id="view"></div></main>
+
+<nav class="tabs" aria-label="Sections">
+  <button data-tab="today"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+  <button data-tab="schedule"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Visits</button>
+  <button data-tab="log"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>Diary</button>
+  <button data-tab="journey"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>Journey</button>
+  <button data-tab="more"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Helpers</button>
+</nav>
+<button class="fab" id="fab" aria-label="Add a moment" hidden><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+
+<dialog class="sheet" id="sheet"><form id="sheetForm" method="dialog" novalidate></form></dialog>
+
+<script>
+/* ---------- helpers ---------- */
+const $=(s,el=document)=>el.querySelector(s);
+function h(tag,attrs,...kids){const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs||{})){if(v==null||v===false)continue;if(k==='class')e.className=v;else if(k==='text')e.textContent=v;else if(k==='html')e.innerHTML=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v===true?'':v)}for(const c of kids.flat(Infinity)){if(c==null||c===false)continue;e.append(c instanceof Node?c:document.createTextNode(String(c)))}return e}
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today=()=>ymd(new Date());
+const parseYmd=s=>{const[y,m,d]=(s||today()).split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(s,n)=>{const d=parseYmd(s);d.setDate(d.getDate()+n);return ymd(d)};
+const fmtDate=(s,o)=>parseYmd(s).toLocaleDateString(undefined,o||{weekday:'short',month:'short',day:'numeric'});
+const fmtTime=t=>{if(!t)return'';const[H,M]=t.split(':').map(Number);return`${(H%12)||12}:${pad(M)} ${H>=12?'PM':'AM'}`};
+const nowTime=()=>{const d=new Date();return`${pad(d.getHours())}:${pad(d.getMinutes())}`};
+const strip=r=>{const o={...r};delete o.id;return o};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+function toast(msg){document.querySelectorAll('.toast').forEach(t=>t.remove());const t=h('div',{class:'toast',role:'status',text:msg});document.body.append(t);setTimeout(()=>t.remove(),2400)}
+function ago(dateStr,time){if(!time)return'';const[H,M]=time.split(':').map(Number);const d=parseYmd(dateStr);d.setHours(H,M);const m=Math.round((Date.now()-d)/60000);if(m<0)return'';if(m<60)return`${m} min ago`;const hr=Math.floor(m/60);if(hr<24)return`${hr}h ${m%60}m ago`;return`${Math.floor(hr/24)}d ago`}
+
+/* ---------- config ---------- */
+const APPT_KINDS=['Primary care','Cardiology','GI','Advanced feeding','Ophthalmology','Other specialist','Physical therapy','Occupational therapy','Speech therapy','In-home nurse','Lab or test','Other'];
+const KIND_COLOR={'Primary care':'--accent','Cardiology':'--weight','GI':'--feed','Advanced feeding':'--feed','Ophthalmology':'--sleep','Other specialist':'--weight','Physical therapy':'--exercise','Occupational therapy':'--diaper','Speech therapy':'--sleep','In-home nurse':'--nurse','Lab or test':'--note','Other':'--note'};
+const LOG={
+  feed:{label:'Meal',color:'--feed',fields:()=>[{k:'amount',label:'Amount',type:'number',step:'0.5',half:true},{k:'unit',label:'Unit',type:'select',options:['oz','ml'],def:unitPref,half:true},{k:'method',label:'How he ate',type:'select',options:['Bottle','Tube, bolus','Tube, pump','Bottle, then tube','Breast','Other']},{k:'note',label:'Notes',type:'textarea',ph:'Spit up, fussy, took it well'}],
+    line:e=>[e.amount?`${e.amount} ${e.unit||''}`:'',e.method].filter(Boolean).join(' · ')},
+  nightfeed:{label:'Night feed',color:'--sleep',fields:()=>[
+    {k:'end',label:'Ended',type:'time',half:true},{k:'rate',label:'Pump rate, ml per hour',type:'number',half:true},
+    {k:'total',label:'Total given',type:'number',half:true},{k:'unit',label:'Unit',type:'select',options:['ml','oz'],def:'ml',half:true},
+    {k:'formula',label:'Formula or milk',ph:'Breast milk, formula name, calories'},
+    {k:'went',label:'How the night went',type:'select',options:['Went well','Some spit up','Vomited','Pump alarm or stopped','Tube came out','Other']},
+    {k:'note',label:'Notes',type:'textarea',ph:'Flushes, venting, anything for the morning'}],
+    line:e=>[e.total?`${e.total} ${e.unit||'ml'}`:'',e.time&&e.end?`${fmtTime(e.time)} to ${fmtTime(e.end)}`:'',e.rate?`${e.rate} ml/hr`:'',e.went].filter(Boolean).join(' · ')},
+  diaper:{label:'Diaper',color:'--diaper',fields:()=>[{k:'kind',label:'Type',type:'select',options:['Wet','Dirty','Both']},{k:'note',label:'Notes'}],line:e=>e.kind||''},
+  sleep:{label:'Nap',color:'--sleep',fields:()=>[{k:'hours',label:'How long, in hours',type:'number',step:'0.25'},{k:'note',label:'Notes'}],line:e=>e.hours?`${e.hours} h`:''},
+  exercise:{label:'Playtime',color:'--exercise',fields:()=>[{k:'what',label:'What you practiced or played',list:()=>S.plan.filter(p=>p.active!==false).map(p=>p.instruction),ph:'Tummy time, reaching for toys'},{k:'minutes',label:'Minutes',type:'number'},{k:'note',label:'How he did',type:'textarea'}],line:e=>[e.what,e.minutes?`${e.minutes} min`:''].filter(Boolean).join(' · ')},
+  weight:{label:'Weigh in',color:'--weight',fields:()=>[{k:'lb',label:'Pounds',type:'number',half:true},{k:'oz',label:'Ounces',type:'number',step:'0.1',half:true},{k:'length',label:'Length, inches',type:'number',step:'0.1',half:true},{k:'head',label:'Head, inches',type:'number',step:'0.1',half:true},{k:'note',label:'Where it was taken',ph:'Pediatrician, home scale'}],line:e=>[fmtWeight(totOz(e)),e.length?e.length+' in long':''].filter(Boolean).join(' · ')},
+  med:{label:'Medicine',color:'--med',fields:()=>[{k:'name',label:'Medicine',list:()=>S.meds.map(m=>m.name)},{k:'dose',label:'Dose given'},{k:'note',label:'Notes'}],line:e=>[e.name,e.dose].filter(Boolean).join(' · ')},
+  nurse:{label:'Nurse note',color:'--nurse',fields:()=>[
+    {k:'nurse',label:'Nurse name',list:()=>S.team.map(t=>t.name)},
+    {k:'intake',label:'Ate and drank, total',type:'number',step:'0.5',half:true},{k:'unit',label:'Unit',type:'select',options:['oz','ml'],def:unitPref,half:true},
+    {k:'feeds',label:'Meals',type:'textarea',rows:2,ph:'Times, amounts, how he took them'},
+    {k:'wet',label:'Wet diapers',type:'number',half:true},{k:'dirty',label:'Dirty diapers',type:'number',half:true},
+    {k:'vitals',label:'How he is doing',ph:'Weight, temperature, oxygen'},
+    {k:'activity',label:'Practice and play',type:'textarea',rows:2},
+    {k:'concerns',label:'Keep an eye on',type:'textarea',rows:2},
+    {k:'text',label:'Full report',type:'textarea',rows:4,ph:'The whole message, word for word'}],
+    line:e=>[e.intake?`Took in ${e.intake} ${e.unit||''}`:'',e.concerns?'Keep an eye on: '+e.concerns:'',!e.intake&&!e.concerns?(e.feeds||e.text||''):''].filter(Boolean).join(' · ')},
+  note:{label:'Note',color:'--note',fields:()=>[{k:'text',label:'Note',type:'textarea',rows:4}],line:e=>e.text||''}
+};
+const CFG={
+  appts:{title:'Visit',fields:()=>[
+    {k:'kind',label:'Type',type:'select',options:APPT_KINDS},
+    {k:'title',label:'What is it',ph:'Feeding evaluation'},
+    {k:'provider',label:'Provider',list:()=>S.team.map(t=>t.name)},
+    {k:'date',label:'Date',type:'date',def:today,half:true,req:true},
+    {k:'time',label:'Time',type:'time',half:true},
+    {k:'location',label:'Location'},
+    {k:'who',label:'Who is going'},
+    {k:'bring',label:'What to bring',ph:'Insurance card, med list, diapers, bottle'},
+    {k:'notes',label:'Before the visit',type:'textarea',rows:2,ph:'Questions to ask, paperwork'},
+    {k:'summary',label:'What happened at the visit',type:'textarea',rows:4,ph:'Weight, what they checked, what they said'},
+    {k:'homework',label:'What we need to do at home',type:'textarea',rows:3,ph:'Exercises, feeding changes, next appointment'},
+    {k:'repeat',label:'Repeat',type:'select',newOnly:true,options:[['1','Does not repeat'],['4','Weekly for 4 weeks'],['8','Weekly for 8 weeks'],['12','Weekly for 12 weeks']]}
+  ]},
+  plan:{title:'Practice at home',fields:()=>[
+    {k:'instruction',label:'What to practice',type:'textarea',req:true,ph:'Tummy time 3 times a day, 5 minutes each'},
+    {k:'provider',label:'Who asked for it',list:()=>S.team.map(t=>t.name),half:true},
+    {k:'frequency',label:'How often',type:'select',options:['Every day','Several times a day','A few times a week','Weekly','As needed'],half:true},
+    {k:'since',label:'Started',type:'date',def:today,half:true},
+    {k:'active',label:'Still doing this',type:'checkbox',def:true}
+  ]},
+  meds:{title:'Medicine',fields:()=>[
+    {k:'name',label:'Medicine',req:true},
+    {k:'dose',label:'Dose',half:true},{k:'when',label:'When to give',half:true,ph:'8 AM and 8 PM'},
+    {k:'prescriber',label:'Prescribed by',list:()=>S.team.map(t=>t.name)},
+    {k:'pharmacy',label:'Pharmacy'},
+    {k:'notes',label:'Notes',type:'textarea',ph:'How to measure, side effects to watch'}
+  ]},
+  team:{title:'Helper',fields:()=>[
+    {k:'name',label:'Name',req:true},
+    {k:'role',label:'Role',list:()=>['Pediatrician','Cardiologist','Pulmonologist','Physical therapist','Occupational therapist','Home health nurse','Nurse case manager','Pharmacy','Developmental clinic']},
+    {k:'phone',label:'Phone',type:'tel'},
+    {k:'notes',label:'Notes',type:'textarea',ph:'Office hours, after hours line, portal'}
+  ]},
+  wins:{title:'Win',fields:()=>[
+    {k:'title',label:'What happened',req:true,ph:'Took a whole bottle by mouth'},
+    {k:'date',label:'Date',type:'date',def:today,half:true,req:true},
+    {k:'category',label:'Kind of win',type:'select',half:true,options:['A first','Bright spot','Feeding','Growing','Moving','Sounds and talking','Health','Just because']},
+    {k:'note',label:'The story',type:'textarea',ph:'Who saw it, how it felt'}
+  ]},
+  questions:{title:'Question',fields:()=>[
+    {k:'text',label:'Question',type:'textarea',req:true},
+    {k:'for',label:'For',list:()=>S.team.map(t=>t.name)},
+    {k:'done',label:'Asked and answered',type:'checkbox',def:false},
+    {k:'answer',label:'What they said',type:'textarea'}
+  ]}
+};
+const CHECKLIST=[
+  {group:'Before leaving the hospital',items:[
+    ['c1','Attend the NICU discharge and infant CPR classes','Ask which classes are required before discharge.'],
+    ['c2','Practice his care with the nurses','Feeding, medicines, any tube or equipment. Some families stay a night or two to practice.'],
+    ['c3','Get the After Visit Summary','The nurse case manager writes this home care plan. Add each instruction to the Care plan tab.'],
+    ['c4','Get the current medicine list','Ask what each new medicine is for, then fill prescriptions before going home.'],
+    ['c5','Know who his doctors will be','Confirm the pediatrician and every specialist who will follow him.'],
+    ['c6','Ask about follow up clinics','Ask if he should be seen at a developmental follow up clinic.'],
+    ['c7','Arrange home health and equipment','Nurse visits, supplies and equipment should be set up before discharge.'],
+    ['c8','Install the car seat','Bring the car seat and clothes for the ride home.']
+  ]},
+  {group:'Once he is home',items:[
+    ['h1','Add every follow up appointment','Put them on the Schedule tab so everyone can see them.'],
+    ['h2','Reread the label before each dose','Give each medicine exactly as prescribed, and use one pharmacy.'],
+    ['h3','Ask the pharmacist how to measure doses','Also ask about side effects, and question any refill that looks different.'],
+    ['h4','Write down home exercises','Therapists and clinic staff share activities to do at home. Log them daily.'],
+    ['h5','Keep a steady daily routine','Consistent sleep and feeding times help babies settle at home.'],
+    ['h6','Keep a list of questions','Add them on the Today tab and bring it to each visit.'],
+    ['h7','Take care of the caregivers','NICU parents carry a lot. Talk to a doctor if worry or sadness does not ease.']
+  ]}
+];
+
+/* ---------- state ---------- */
+const COLLS=['appts','logs','plan','meds','questions','team','wins'];
+const S={appts:[],logs:[],plan:[],meds:[],questions:[],team:[],wins:[],profile:{},checklist:{},daily:{}};
+let db=null,user=null,myId=null,canWrite=true,status='loading';
+let tab=store.get('tab')||'today',schedMode='upcoming',logMode='day',logDate=today();
+const unitPref=()=>S.profile.feedUnit||'oz';
+const totOz=e=>(Number(e.lb)||0)*16+(Number(e.oz)||0);
+const fmtWeight=oz=>{if(!oz)return'';const lb=Math.floor(oz/16);const r=Math.round((oz-lb*16)*10)/10;return`${lb} lb ${r} oz`};
+const toPref=(amt,unit)=>{amt=Number(amt)||0;const p=unitPref();if(!unit||unit===p)return amt;return p==='ml'?amt*29.5735:amt/29.5735};
+const fmtAmt=v=>unitPref()==='ml'?`${Math.round(v)} ml`:`${Math.round(v*2)/2} oz`;
+const sortLogs=a=>[...a].sort((x,y)=>(y.date+(y.time||'')).localeCompare(x.date+(x.time||'')));
+const apptKey=a=>a.date+(a.time||'99:99');
+const nurseIntake=d=>S.logs.filter(l=>l.date===d&&l.type==='nurse'&&l.intake).reduce((m,l)=>Math.max(m,toPref(l.intake,l.unit)),0);
+let sampleFn=null,sampleImages=false,schedKind='';
+const feedSum=d=>S.logs.filter(l=>l.date===d&&(l.type==='feed'||l.type==='nightfeed')).reduce((s,f)=>s+(f.type==='nightfeed'?toPref(f.total,f.unit||'ml'):toPref(f.amount,f.unit)),0);
+const feedTotal=d=>feedSum(d)||nurseIntake(d);
+const weights=()=>S.logs.filter(l=>l.type==='weight'&&totOz(l)>0).sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
+const fmtGain=oz=>{const a=Math.abs(oz);const lb=Math.floor(a/16),r=Math.round((a-lb*16)*10)/10;return((lb?`${lb} lb `:'')+(r||!lb?`${r} oz`:'')).trim()};
+const lastNightFeed=d=>sortLogs(S.logs.filter(l=>l.type==='nightfeed'&&(l.date===d||l.date===addDays(d,-1))))[0];
+
+/* ---------- data writes ---------- */
+function errMsg(e){const c=e&&e.code;if(c==='invalid_argument')return'You can view this tracker but not change it. Ask the owner to invite you as an Editor.';if(c==='quota_exceeded')return'Storage is full. Delete some old entries and try again.';if(c==='resource_exhausted')return'Too many changes at once. Wait a moment and try again.';return'Could not save. Check your connection and try again.'}
+async function add(coll,data){if(!db){toast('Sign in to claude.ai to save');return false}try{await db.collection(coll).add({...data,createdBy:myId,createdAt:Date.now()});return true}catch(e){toast(errMsg(e));return false}}
+async function put(coll,id,data){if(!db)return false;try{await db.collection(coll).doc(id).set({...data,updatedBy:myId,updatedAt:Date.now()});return true}catch(e){toast(errMsg(e));return false}}
+async function del(coll,id){if(!db)return false;try{await db.collection(coll).doc(id).delete();toast('Deleted');return true}catch(e){toast(errMsg(e));return false}}
+
+/* ---------- form sheet ---------- */
+function openForm({title,fields,values={},onSave,onDelete,extra}){
+  const dlg=$('#sheet'),form=$('#sheetForm');form.replaceChildren();
+  const box=h('div',{class:'fields'});
+  fields.forEach(f=>{
+    const id='f_'+f.k;let val=values[f.k];if(val===undefined)val=typeof f.def==='function'?f.def():f.def;if(val==null)val='';
+    let input;
+    if(f.type==='select'){input=h('select',{id,name:f.k},f.options.map(o=>{const[v,l]=Array.isArray(o)?o:[o,o];return h('option',{value:v},l)}));if(val!=='')input.value=val}
+    else if(f.type==='textarea'){input=h('textarea',{id,name:f.k,rows:f.rows||3,placeholder:f.ph||null});input.value=val}
+    else if(f.type==='checkbox'){input=h('input',{id,name:f.k,type:'checkbox'});input.checked=!!val;box.append(h('div',{class:'field checkrow'},input,h('label',{for:id,text:f.label})));return}
+    else{input=h('input',{id,name:f.k,type:f.type||'text',placeholder:f.ph||null,step:f.step||null,inputmode:f.type==='number'?'decimal':null,list:f.list?id+'_l':null,autocomplete:'off'});input.value=val}
+    const dl=f.list?h('datalist',{id:id+'_l'},[...new Set(f.list().filter(Boolean))].map(o=>h('option',{value:o}))):null;
+    box.append(h('div',{class:'field'+(f.half?' half':'')},h('label',{for:id,text:f.label+(f.req?' *':'')}),input,dl));
+  });
+  let armed=false;
+  const delBtn=onDelete?h('button',{type:'button',class:'btn danger',onclick:async e=>{if(!armed){armed=true;e.currentTarget.classList.add('armed');e.currentTarget.textContent='Tap again to delete';return}if(await onDelete())dlg.close()}},'Delete'):null;
+  form.append(
+    h('div',{class:'sheet-head'},h('h3',{text:title}),h('button',{type:'button',class:'icon-btn','aria-label':'Close',onclick:()=>dlg.close()},'×')),
+    box,
+    h('div',{class:'sheet-actions'},delBtn,extra||null,h('div',{class:'right'},h('button',{type:'button',class:'btn',onclick:()=>dlg.close()},'Cancel'),h('button',{type:'submit',class:'btn primary',id:'saveBtn'},'Save')))
+  );
+  form.onsubmit=async ev=>{
+    ev.preventDefault();const v={};
+    for(const f of fields){const el=form.elements[f.k];if(!el)continue;if(f.type==='checkbox')v[f.k]=el.checked;else if(f.type==='number')v[f.k]=el.value===''?null:Number(el.value);else v[f.k]=el.value.trim();
+      if(f.req&&(v[f.k]===''||v[f.k]==null)){toast(`Please fill in ${f.label.toLowerCase()}`);el.focus();return}}
+    const b=$('#saveBtn');b.disabled=true;b.textContent='Saving';
+    const ok=await onSave(v);b.disabled=false;b.textContent='Save';
+    if(ok){dlg.close();toast('Saved')}
+  };
+  if(!canWrite){form.querySelectorAll('input,select,textarea').forEach(x=>x.disabled=true);$('#saveBtn').hidden=true;if(delBtn)delBtn.hidden=true}
+  dlg.showModal();
+  const first=form.querySelector('.fields input:not([type=checkbox]),.fields textarea');if(first&&!values.id&&first.type!=='date')setTimeout(()=>first.focus(),50);
+}
+function editRec(coll,rec,prefill,after){
+  const cfg=CFG[coll];const fields=cfg.fields().filter(f=>!((rec||prefill)&&f.newOnly));
+  const extra=coll==='appts'&&rec&&rec.date>=today()?h('button',{type:'button',class:'btn',onclick:()=>{$('#sheet').close();openVisitSheet(rec)}},'Visit sheet'):null;
+  openForm({title:prefill?'Check it, then save':rec?cfg.title:'New '+cfg.title.toLowerCase(),fields,values:{...(rec||{}),...(prefill||{})},extra,
+    onSave:async v=>{
+      let ok;
+      if(rec)ok=await put(coll,rec.id,{...strip(rec),...v});
+      else{const n=Number(v.repeat||1);delete v.repeat;ok=true;
+        for(let i=0;i<n;i++){if(!await add(coll,{...v,date:v.date&&i?addDays(v.date,7*i):v.date})){ok=false;break}}}
+      if(ok&&after)setTimeout(()=>after(v),300);
+      return ok},
+    onDelete:rec?()=>del(coll,rec.id):null});
+}
+function editLog(type,rec,prefill){
+  const L=LOG[type];
+  const fields=[{k:'date',label:type==='nightfeed'?'Night of':'Date',type:'date',def:()=>logDate,half:true,req:true},{k:'time',label:type==='nightfeed'?'Started':'Time',type:'time',def:nowTime,half:true},...L.fields()];
+  openForm({title:prefill?'Check the nurse update, then save':L.label,fields,values:rec||prefill||{},
+    onSave:v=>{
+      if(type==='nightfeed'&&v.total==null&&v.rate&&v.time&&v.end){const[a,b]=v.time.split(':').map(Number),[c,d]=v.end.split(':').map(Number);let m=(c*60+d)-(a*60+b);if(m<=0)m+=1440;v.total=Math.round(v.rate*m/60);v.unit='ml'}
+      return rec?put('logs',rec.id,{...strip(rec),...v,type}):add('logs',{...v,type})},
+    onDelete:rec?()=>del('logs',rec.id):null});
+}
+
+/* ---------- small builders ---------- */
+const addBtn=(label,fn)=>canWrite?h('button',{class:'btn small primary',onclick:fn},'+ '+label):null;
+const by=uid=>uid?h('span',{class:'by','data-uid':uid},'family'):null;
+function empty(text,label,fn){return h('div',{class:'card empty'},h('p',{text}),canWrite&&label?h('button',{class:'btn small',onclick:fn},'+ '+label):null)}
+function apptRow(a){
+  const d=parseYmd(a.date);
+  return h('button',{class:'row',onclick:()=>editRec('appts',a)},
+    h('div',{class:'datebox'},h('span',{text:d.toLocaleDateString(undefined,{month:'short'})}),h('b',{text:d.getDate()}),h('span',{text:d.toLocaleDateString(undefined,{weekday:'short'})})),
+    h('div',{class:'main'},h('div',{class:'title',text:a.title||a.kind}),
+      h('div',{class:'sub'},[a.time?fmtTime(a.time):'Time not set',a.provider,a.location].filter(Boolean).join(' · ')),
+      a.who?h('div',{class:'sub',text:'Going: '+a.who}):null,
+      a.summary?h('div',{class:'clamp',text:a.summary}):null,
+      a.homework?h('div',{class:'home'},h('b',{},'At home: '),a.homework):null,
+      h('div',{style:'margin-top:6px'},h('span',{class:'chip'},h('i',{style:`background:var(${KIND_COLOR[a.kind]||'--note'})`}),a.kind||'Appointment'))));
+}
+function logRow(e){
+  const L=LOG[e.type]||LOG.note;const text=L.line(e);
+  return h('button',{class:'row',onclick:()=>editLog(e.type in LOG?e.type:'note',e)},
+    bubble(e.type in ICON?e.type:'note',L.color),
+    h('div',{class:'main'},h('div',{class:'title',text:L.label}),text?h('div',{class:'sub',style:'white-space:pre-wrap',text:text.length>220?text.slice(0,220)+'…':text}):null,
+      e.note&&e.type!=='note'?h('div',{class:'sub',text:e.note}):null),
+    h('div',{class:'side'},fmtTime(e.time),h('div',{class:'small'},by(e.createdBy))));
+}
+function quickAdd(){
+  if(!canWrite)return null;
+  return h('div',{class:'quick'},Object.entries(LOG).map(([k,L])=>h('button',{onclick:()=>{logDate=today();editLog(k)}},h('i',{style:`background:var(${L.color})`}),h('span',{text:L.label}))));
+}
+function daySummary(date){
+  const day=S.logs.filter(l=>l.date===date);
+  const feeds=day.filter(l=>l.type==='feed');const total=feedTotal(date);
+  const lastFeed=sortLogs(S.logs.filter(l=>l.type==='feed'))[0];
+  const nf=lastNightFeed(date);
+  const diapers=day.filter(l=>l.type==='diaper');
+  const ex=day.filter(l=>l.type==='exercise');const exMin=ex.reduce((s,x)=>s+(Number(x.minutes)||0),0);
+  const w=weights();const lw=w[w.length-1],pw=w[w.length-2];const diff=lw&&pw?totOz(lw)-totOz(pw):0;
+  const stat=(k,v,d)=>h('div',{class:'stat'},h('div',{class:'k',text:k}),h('div',{class:'v',text:v}),d?h('div',{class:'d',text:d}):null);
+  return h('div',{class:'stats'},
+    stat('Taken in',total?fmtAmt(total):'0',total?`${feeds.length} feeding${feeds.length===1?'':'s'}${nf&&nf.date===date?' plus night feed':''}${!feedSum(date)?' per nurse':''}`:'None logged'),
+    stat('Night feed',nf?(nf.total?`${nf.total} ${nf.unit||'ml'}`:'Logged'):'Not logged',nf?[nf.time&&nf.end?`${fmtTime(nf.time)} to ${fmtTime(nf.end)}`:'',nf.went].filter(Boolean).join(' · '):'Log it when it starts'),
+    stat('Last feeding',lastFeed?fmtTime(lastFeed.time)||fmtDate(lastFeed.date):'None',lastFeed?ago(lastFeed.date,lastFeed.time)||fmtDate(lastFeed.date):'Log the first one'),
+    stat('Diapers',String(diapers.length),diapers.length?`${diapers.filter(d=>d.kind!=='Dirty').length} wet, ${diapers.filter(d=>d.kind!=='Wet').length} dirty`:'None logged'),
+    stat('Exercises',String(ex.length),exMin?`${exMin} minutes`:'None logged'),
+    stat('Weight',lw?fmtWeight(totOz(lw)):'Not logged',lw?(diff>0?`Up ${fmtGain(diff)} since last weigh in`:fmtDate(lw.date)):'Log a weigh in'));
+}
+
+/* ---------- views ---------- */
+function nurseCard(e){
+  const nm=S.profile.babyName||'He';
+  const rows=[['Ate and drank',e.intake?`${e.intake} ${e.unit||''}`:''],['Meals',e.feeds],
+    ['Diapers',(e.wet!=null||e.dirty!=null)?`${e.wet??0} wet, ${e.dirty??0} dirty`:''],['How he is doing',e.vitals],
+    ['Practice and play',e.activity]].filter(r=>r[1]);
+  return h('button',{class:'card nurse',onclick:()=>editLog('nurse',e)},
+    h('div',{class:'nhead'},bubble('nurse','--nurse'),h('div',{},h('b',{text:`${e.nurse||'His nurse'} checked in${e.time?' at '+fmtTime(e.time):''}`}),h('div',{class:'small muted'},'Added by ',by(e.createdBy)))),
+    rows.length?h('dl',{},rows.map(([k,v])=>[h('dt',{text:k}),h('dd',{text:v})])):h('p',{class:'clamp',text:e.text||''}),
+    e.concerns?h('div',{class:'watch'},h('b',{},'Keep an eye on: '),e.concerns):null,
+    rows.length&&e.text?h('div',{class:'small muted',text:'Tap to read her whole message'}):null);
+}
+function provRow(a){
+  return h('button',{class:'row',onclick:()=>editRec('appts',a)},
+    h('span',{class:'tl-dot big',style:`background:var(${KIND_COLOR[a.kind]||'--note'})`}),
+    h('div',{class:'main'},h('div',{class:'title',text:FRIENDLY[a.kind]||a.kind||'Visit'}),
+      h('div',{class:'sub',text:[fmtDate(a.date),a.provider].filter(Boolean).join(' · ')}),
+      a.summary?h('div',{class:'clamp',text:a.summary}):null,
+      a.homework?h('div',{class:'home'},h('b',{},'At home: '),a.homework):null));
+}
+function nurseActions(){
+  if(!canWrite)return null;
+  return h('div',{style:'display:flex;gap:8px;flex-wrap:wrap'},
+    h('button',{class:'btn small primary',onclick:()=>openCapture('nurse')},'Add nurse text'),
+    h('button',{class:'btn small',onclick:()=>{logDate=today();editLog('nurse')}},'Type it in'));
+}
+const FRIENDLY={'Speech therapy':'Speech','Physical therapy':'Physical therapy','Occupational therapy':'Occupational therapy','In-home nurse':'Nurse visit','Primary care':'Checkup'};
+function visitRow(a){
+  const c=KIND_COLOR[a.kind]||'--note';const short=a.notes&&a.notes.length<=24?a.notes:'';
+  return h('button',{class:'tl',onclick:()=>editRec('appts',a)},
+    h('div',{class:'tl-time',text:a.time?fmtTime(a.time):'Anytime'}),
+    h('span',{class:'tl-dot',style:`background:var(${c})`}),
+    h('div',{class:'main'},h('div',{class:'title',text:a.title||FRIENDLY[a.kind]||a.kind}),
+      h('div',{class:'sub',text:[short,a.location&&a.location!=='Home'?a.location.split(',')[0]:a.location==='Home'?'At home':'',a.who?'With '+a.who:''].filter(Boolean).join(' · ')})));
+}
+let homeDay=today();
+function weekPlan(){
+  const t=today();const days=[...Array(7)].map((_,i)=>addDays(t,i));if(!days.includes(homeDay))homeDay=t;
+  const list=S.appts.filter(a=>a.date===homeDay).sort((a,b)=>apptKey(a).localeCompare(apptKey(b)));
+  const strip=h('div',{class:'week',role:'group','aria-label':'This week'},days.map(d=>{const dd=parseYmd(d);const kinds=[...new Set(S.appts.filter(a=>a.date===d).map(a=>a.kind))];
+    return h('button',{class:'wday','aria-pressed':String(d===homeDay),onclick:()=>{homeDay=d;render()}},
+      h('span',{class:'wd',text:d===t?'Today':dd.toLocaleDateString(undefined,{weekday:'short'})}),h('b',{text:dd.getDate()}),
+      h('span',{class:'dots'},kinds.slice(0,4).map(k=>h('i',{style:`background:var(${KIND_COLOR[k]||'--note'})`}))))}));
+  const label=homeDay===t?'Today':homeDay===addDays(t,1)?'Tomorrow':fmtDate(homeDay,{weekday:'long',month:'long',day:'numeric'});
+  return h('section',{},h('div',{class:'sec-head'},h('h2',{text:'This week'}),canWrite?h('button',{class:'linkbtn',onclick:()=>editRec('appts',null,{date:homeDay})},'+ Add a visit'):null),strip,
+    h('div',{class:'card soft'},h('div',{class:'eyebrow',style:'padding:12px 16px 0',text:label}),
+      list.length?h('div',{class:'tl-list'},list.map(visitRow)):h('p',{class:'calm',text:homeDay===t?'No visits today. A good day for cuddles and rest.':'Nothing planned. A free day.'})));
+}
+function dayTiles(date){
+  const day=S.logs.filter(l=>l.date===date);
+  const feeds=day.filter(l=>l.type==='feed');const total=feedTotal(date);
+  const lastFeed=sortLogs(S.logs.filter(l=>l.type==='feed'))[0];const nf=lastNightFeed(date);
+  const diapers=day.filter(l=>l.type==='diaper');const naps=day.filter(l=>l.type==='sleep');const napH=naps.reduce((s,x)=>s+(Number(x.hours)||0),0);
+  const play=day.filter(l=>l.type==='exercise');const playMin=play.reduce((s,x)=>s+(Number(x.minutes)||0),0);
+  const tile=(ic,c,k,v,d,onclick)=>h('button',{class:'tile',onclick:canWrite?onclick:null},bubble(ic,c),h('div',{class:'tk',text:k}),h('div',{class:'tv',text:v}),d?h('div',{class:'td',text:d}):null);
+  const L=t=>()=>{logDate=date;editLog(t)};
+  return h('div',{class:'tiles'},
+    tile('feed','--feed','Meals',total?fmtAmt(total):'Nothing yet',total?`${feeds.length} meal${feeds.length===1?'':'s'}${!feedSum(date)?', from his nurse':''}`:'Tap to add one',L('feed')),
+    tile('nightfeed','--sleep','Night feed',nf?(nf.total?`${nf.total} ${nf.unit||'ml'}`:'Logged'):'Not yet',nf?(nf.went||(nf.time?'Started '+fmtTime(nf.time):'')):'Tap when it starts',L('nightfeed')),
+    tile('feed','--feed','Last meal',lastFeed?fmtTime(lastFeed.time)||fmtDate(lastFeed.date):'Not yet',lastFeed?ago(lastFeed.date,lastFeed.time):'',L('feed')),
+    tile('diaper','--diaper','Diapers',diapers.length?String(diapers.length):'Not yet',diapers.length?`${diapers.filter(d=>d.kind!=='Dirty').length} wet, ${diapers.filter(d=>d.kind!=='Wet').length} dirty`:'',L('diaper')),
+    tile('sleep','--sleep','Naps',naps.length?(napH?`${n1(napH)} hours`:String(naps.length)):'Not yet','',L('sleep')),
+    tile('exercise','--exercise','Playtime',play.length?(playMin?`${playMin} min`:String(play.length)):'Not yet',play.length?`${play.length} time${play.length===1?'':'s'}`:'',L('exercise')));
+}
+const NEUTRAL=['Small steps are still steps forward.','Look how far he has come.','Progress is not always loud. Some days it is a calm meal and a good nap.','Today does not have to be perfect to be good.','He is growing at his own pace, and that is the right pace.','Every therapy session, every meal, every cuddle adds up.','You are exactly who he needs.'];
+const FAITH=[['I will praise Thee; for I am fearfully and wonderfully made.','Psalm 139:14'],['For who hath despised the day of small things?','Zechariah 4:10'],['Weeping may endure for a night, but joy cometh in the morning.','Psalm 30:5'],['They that wait upon the LORD shall renew their strength.','Isaiah 40:31'],['His compassions fail not. They are new every morning.','Lamentations 3:22–23'],['Casting all your care upon Him; for He careth for you.','1 Peter 5:7'],['I can do all things through Christ which strengtheneth me.','Philippians 4:13']];
+const SELFCARE=['Drink a glass of water and take three slow breaths.','Text one friend something good about today.','Hand one task to someone else on his team today.','Step outside for five minutes of fresh air.','Eat a real meal, not just coffee.','Rest while he rests. The dishes can wait.','Write down one bright spot before bed.'];
+const dayNo=()=>Math.floor(parseYmd(today()).getTime()/86400000);
+function encourage(){
+  const faith=S.profile.faith!==false;const n=dayNo();
+  if(faith){const[q,ref]=FAITH[n%FAITH.length];return h('section',{class:'encourage'},h('span',{class:'enc-ic',html:svg('sun')}),h('div',{},h('p',{class:'enc-q',text:q}),h('div',{class:'enc-ref',text:ref})))}
+  return h('section',{class:'encourage'},h('span',{class:'enc-ic',html:svg('sun')}),h('div',{},h('p',{class:'enc-q',text:NEUTRAL[n%NEUTRAL.length]})));
+}
+function brightSpots(){
+  const t=today();const wins=[...S.wins].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,3);
+  const inp=canWrite?h('input',{id:'brightIn',type:'text',placeholder:'He smiled at his therapist today…',autocomplete:'off'}):null;
+  const save=async()=>{const v=inp.value.trim();if(!v){inp.focus();return}if(await add('wins',{title:v,date:t,category:'Bright spot'})){inp.value='';celebrate();toast('Saved to his journey')}};
+  if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();save()}});
+  return h('section',{},h('div',{class:'sec-head'},h('h2',{text:'Bright spots'}),wins.length?h('button',{class:'linkbtn',onclick:()=>{tab='journey';window.scrollTo(0,0);render()}},'See all'):null),
+    h('div',{class:'card soft bright'},
+      canWrite?h('div',{class:'bright-in'},h('label',{for:'brightIn',text:'What was good today?'}),h('div',{class:'bright-row'},inp,h('button',{class:'btn primary small',onclick:save},'Save'))):null,
+      wins.length?h('div',{class:'bright-list'},wins.map(w=>h('button',{class:'bright-item',onclick:()=>editRec('wins',w)},h('span',{class:'winstar',style:`background:var(${WIN_COLOR[w.category]||'--accent'})`}),h('div',{class:'main'},h('div',{class:'title',text:w.title}),h('div',{class:'sub',text:fmtDate(w.date,{month:'short',day:'numeric'})}))))):
+      h('p',{class:'calm',text:'Every good moment counts. A smile, a full meal, a calm night. Write one here and it joins his journey.'})));
+}
+function momentForYou(){
+  return h('section',{class:'moment'},h('div',{class:'eyebrow',text:'A moment for you'}),
+    h('p',{class:'m-big',text:SELFCARE[dayNo()%SELFCARE.length]}),
+    h('p',{class:'small',text:'Caring for him means caring for you too. If worry or sadness is hanging on, tell your doctor. Other NICU families understand.'}),
+    h('a',{href:'https://handtohold.org',target:'_blank',rel:'noopener',class:'linkbtn'},'Support for NICU families from Hand to Hold'));
+}
+function vToday(){
+  const t=today();
+  const nurseToday=sortLogs(S.logs.filter(l=>l.type==='nurse'&&l.date===t));
+  const nurseVisit=S.appts.find(a=>a.date===t&&a.kind==='In-home nurse');
+  const latest={};S.appts.filter(a=>a.date<=t&&(a.summary||a.homework)&&a.kind!=='In-home nurse').sort((a,b)=>apptKey(b).localeCompare(apptKey(a))).forEach(a=>{if(!latest[a.kind])latest[a.kind]=a});
+  const provs=Object.values(latest);
+  const daily=S.plan.filter(p=>p.active!==false&&(p.frequency==='Every day'||p.frequency==='Several times a day'));
+  const openQ=S.questions.filter(q=>!q.done);const name=S.profile.babyName||'Baby';
+  return[
+    status!=='ready'?banner():null,
+    hero(),
+    encourage(),
+    seriesCards(14),
+    weekPlan(),
+    h('section',{},h('h2',{text:`${name}’s day so far`}),
+      canWrite&&new Date().getHours()>=17&&!S.logs.some(l=>l.type==='nightfeed'&&l.date===t)?h('button',{class:'card soft nightcard',onclick:()=>{logDate=t;editLog('nightfeed')}},bubble('nightfeed','--sleep'),h('div',{class:'main'},h('b',{text:'Ready for the night feed?'}),h('div',{class:'sub',text:'Tap here when the pump starts. You can add how it went in the morning.'}))):null,
+      dayTiles(t)),
+    nurseToday.length||nurseVisit?h('section',{},h('div',{class:'sec-head'},h('h2',{text:'From his nurse'}),canWrite?h('button',{class:'linkbtn',onclick:()=>openCapture('nurse')},'+ Add her text'):null),
+      nurseToday.length?nurseToday.map(nurseCard):h('div',{class:'card soft'},h('p',{class:'calm',text:`His nurse is with him today${nurseVisit.time?' from '+fmtTime(nurseVisit.time):''}. When she texts her update, add it here and the whole family will see it.`}))):null,
+    daily.length?h('section',{},h('div',{class:'sec-head'},h('h2',{text:'Practice together today'}),h('span',{class:'muted small',text:`${daily.filter(p=>S.daily[p.id]).length} of ${daily.length}`})),
+      h('div',{class:'card list'},daily.map(p=>{const done=S.daily[p.id];return h('label',{class:'check'+(done?' done':'')},
+        h('input',{type:'checkbox',checked:!!done,disabled:!canWrite||!db,onchange:e=>{toggleDaily(p.id,e.target.checked);if(e.target.checked)toast('Nice work')}}),
+        h('div',{class:'main'},h('div',{class:'title',text:p.instruction}),h('div',{class:'sub'},[p.provider].filter(Boolean).join(' · '),done?h('span',{},(p.provider?' · ':'')+'done by ',by(done)):null)))}))):null,
+    provs.length?h('section',{},h('h2',{text:'What his helpers are saying'}),h('div',{class:'card list'},provs.map(provRow))):null,
+    brightSpots(),
+    openQ.length?h('section',{},h('div',{class:'sec-head'},h('h2',{text:'Questions to ask'}),addBtn('Question',()=>editRec('questions'))),
+      h('div',{class:'card list'},openQ.map(q=>h('div',{class:'check'},
+        h('input',{type:'checkbox','aria-label':'Mark asked',disabled:!canWrite||!db,onchange:()=>editRec('questions',{...q,done:true})}),
+        h('button',{class:'main',style:'all:unset;cursor:pointer;flex:1;min-width:0',onclick:()=>editRec('questions',q)},h('div',{class:'title',text:q.text}),q.for?h('div',{class:'sub',text:'For '+q.for}):null))))):null,
+    momentForYou()
+  ];
+}
+function vSchedule(){
+  const t=today();const upcoming=schedMode==='upcoming';
+  const list=S.appts.filter(a=>(upcoming?a.date>=t:a.date<t)&&(!schedKind||a.kind===schedKind)).sort((a,b)=>upcoming?apptKey(a).localeCompare(apptKey(b)):apptKey(b).localeCompare(apptKey(a)));
+  const groups=[];list.forEach(a=>{const g=groups[groups.length-1];if(g&&g.date===a.date)g.items.push(a);else groups.push({date:a.date,items:[a]})});
+  return[
+    seriesCards(21),
+    h('div',{class:'sec-head'},h('div',{class:'seg',role:'group'},
+      h('button',{'aria-pressed':String(upcoming),onclick:()=>{schedMode='upcoming';render()}},'Upcoming'),
+      h('button',{'aria-pressed':String(!upcoming),onclick:()=>{schedMode='past';render()}},'Past')),addBtn('Appointment',()=>editRec('appts'))),
+    h('div',{class:'field'},h('label',{for:'kindFilter',text:'Show'}),(()=>{const s=h('select',{id:'kindFilter',onchange:e=>{schedKind=e.target.value;render()}},h('option',{value:''},'All providers'),APPT_KINDS.map(k=>h('option',{value:k},k)));s.value=schedKind;return s})()),
+    list.length?groups.map(g=>h('section',{},h('div',{class:'eyebrow',text:g.date===t?'Today':g.date===addDays(t,1)?'Tomorrow':fmtDate(g.date,{weekday:'long',month:'long',day:'numeric'})}),h('div',{class:'card list'},g.items.map(apptRow)))):
+      empty(upcoming?'Nothing scheduled. Add doctor visits, specialists, therapy sessions and nurse days. Nurse visits can repeat weekly.':'Past appointments will collect here, with the notes from each visit.',upcoming?'Add appointment':null,()=>editRec('appts'))
+  ];
+}
+function vLog(){
+  const head=null;
+  const items=sortLogs(S.logs.filter(l=>l.date===logDate));const t=today();
+  return[head,
+    h('div',{class:'card daynav',style:'padding:6px'},
+      h('button',{class:'icon-btn','aria-label':'Previous day',onclick:()=>{logDate=addDays(logDate,-1);render()}},'‹'),
+      h('div',{class:'lbl'},logDate===t?'Today':logDate===addDays(t,-1)?'Yesterday':fmtDate(logDate,{weekday:'long',month:'short',day:'numeric'})),
+      h('button',{class:'icon-btn','aria-label':'Next day',disabled:logDate>=t,onclick:()=>{if(logDate<t){logDate=addDays(logDate,1);render()}}},'›')),
+    dayTiles(logDate),
+    h('section',{},h('h2',{text:'Moments'}),items.length?h('div',{class:'card list'},items.map(logRow)):h('div',{class:'card soft'},h('p',{class:'calm',text:'A quiet page so far. Tap the plus button to add a meal, a nap, playtime or a note from his nurse.'})))
+  ];
+}
+function niceMax(v){if(v<=0)return 1;const p=10**Math.floor(Math.log10(v));const n=v/p;return(n<=1?1:n<=2?2:n<=5?5:10)*p}
+const n1=v=>String(Math.round(v*10)/10);
+function barChart(data,color){
+  const W=340,H=160,pl=34,pr=6,pt=10,pb=24;const max=niceMax(Math.max(0,...data.map(d=>d.v)));const iw=W-pl-pr,ih=H-pt-pb;const bw=iw/data.length;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Bar chart">`;
+  [0,.5,1].forEach(f=>{const y=pt+ih-ih*f;s+=`<line x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}" style="stroke:var(--line)" stroke-width="1"/><text x="${pl-6}" y="${y+4}" text-anchor="end" font-size="10" style="fill:var(--muted)">${n1(max*f)}</text>`});
+  data.forEach((d,i)=>{const hgt=ih*(d.v/max);const x=pl+i*bw+bw*.18;const last=i===data.length-1;
+    if(d.v>0)s+=`<rect x="${x}" y="${pt+ih-hgt}" width="${bw*.64}" height="${hgt}" rx="3" style="fill:var(${color});opacity:${last?1:.72}"/>`;
+    if(i===0||i===data.length-1||i===Math.floor(data.length/2))s+=`<text x="${x+bw*.32}" y="${H-6}" text-anchor="middle" font-size="10" style="fill:var(--muted)">${d.l}</text>`});
+  return s+'</svg>';
+}
+function lineChart(pts){
+  const W=340,H=170,pl=44,pr=14,pt=14,pb=24;const iw=W-pl-pr,ih=H-pt-pb;
+  const t0=parseYmd(pts[0].d).getTime(),t1=parseYmd(pts[pts.length-1].d).getTime();const span=Math.max(t1-t0,86400000);
+  let lo=Math.min(...pts.map(p=>p.v)),hi=Math.max(...pts.map(p=>p.v));const padv=Math.max(4,(hi-lo)*.15);lo=Math.max(0,lo-padv);hi=hi+padv;
+  const X=p=>pl+iw*((parseYmd(p.d).getTime()-t0)/span)*(pts.length>1?1:0)+(pts.length>1?0:iw/2);const Y=v=>pt+ih-ih*((v-lo)/(hi-lo));
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Weight over time">`;
+  [lo,(lo+hi)/2,hi].forEach(v=>{const y=Y(v);s+=`<line x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}" style="stroke:var(--line)"/><text x="${pl-6}" y="${y+4}" text-anchor="end" font-size="10" style="fill:var(--muted)">${n1(v/16)} lb</text>`});
+  if(pts.length>1){const d=pts.map((p,i)=>`${i?'L':'M'}${X(p)},${Y(p.v)}`).join(' ');s+=`<path d="${d} L${X(pts[pts.length-1])},${pt+ih} L${X(pts[0])},${pt+ih} Z" style="fill:var(--weight);opacity:.12"/><path d="${d}" fill="none" style="stroke:var(--weight)" stroke-width="2.5" stroke-linejoin="round"/>`}
+  pts.forEach((p,i)=>{const last=i===pts.length-1;s+=`<circle cx="${X(p)}" cy="${Y(p.v)}" r="${last?5:3}" style="fill:var(${last?'--weight':'--surface'});stroke:var(--weight)" stroke-width="2"/>`});
+  s+=`<text x="${pl}" y="${H-6}" font-size="10" style="fill:var(--muted)">${fmtDate(pts[0].d,{month:'short',day:'numeric'})}</text><text x="${W-pr}" y="${H-6}" text-anchor="end" font-size="10" style="fill:var(--muted)">${fmtDate(pts[pts.length-1].d,{month:'short',day:'numeric'})}</text>`;
+  return s+'</svg>';
+}
+function star(x,y,r){let p='';for(let i=0;i<10;i++){const a=Math.PI/5*i-Math.PI/2,rr=i%2?r*.45:r;p+=`${(x+rr*Math.cos(a)).toFixed(1)},${(y+rr*Math.sin(a)).toFixed(1)} `}return p}
+function growthChart(w,wins){
+  const W=340,H=210,pl=46,pr=18,pt=26,pb=40;const iw=W-pl-pr,ih=H-pt-pb;
+  const pts=w.map(l=>({d:l.date,v:totOz(l)}));
+  const t0=parseYmd(pts[0].d).getTime(),t1=parseYmd(pts[pts.length-1].d).getTime();const span=Math.max(t1-t0,86400000);
+  let lo=Math.min(...pts.map(p=>p.v)),hi=Math.max(...pts.map(p=>p.v));const padv=Math.max(6,(hi-lo)*.2);lo=Math.max(0,Math.floor((lo-padv)/8)*8);hi=Math.ceil((hi+padv)/8)*8;
+  const one=pts.length===1;const XT=t=>one?pl+iw/2:pl+iw*((t-t0)/span);const X=p=>XT(parseYmd(p.d).getTime());const Y=v=>pt+ih-ih*((v-lo)/(hi-lo));
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Weight over time"><defs><linearGradient id="gfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--feed);stop-opacity:.35"/><stop offset="1" style="stop-color:var(--accent);stop-opacity:.04"/></linearGradient></defs>`;
+  [lo,(lo+hi)/2,hi].forEach(v=>{const y=Y(v);s+=`<line x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}" style="stroke:var(--line)" stroke-dasharray="3 4"/><text x="${pl-8}" y="${y+4}" text-anchor="end" font-size="10" style="fill:var(--muted)">${n1(v/16)} lb</text>`});
+  if(!one){const d=pts.map((p,i)=>`${i?'L':'M'}${X(p).toFixed(1)},${Y(p.v).toFixed(1)}`).join(' ');
+    s+=`<path d="${d} L${X(pts[pts.length-1])},${pt+ih} L${X(pts[0])},${pt+ih} Z" style="fill:url(#gfill)"/><path d="${d}" fill="none" style="stroke:var(--feed)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`}
+  // milestones as stars along the bottom
+  (wins||[]).filter(x=>{const t=parseYmd(x.date).getTime();return !one&&t>=t0&&t<=t1}).forEach(x=>{s+=`<polygon points="${star(XT(parseYmd(x.date).getTime()),pt+ih+12,6)}" style="fill:var(--accent);stroke:var(--accent-text)" stroke-width="1"/>`});
+  pts.forEach((p,i)=>{const last=i===pts.length-1;s+=`<circle cx="${X(p)}" cy="${Y(p.v)}" r="${last?7:4}" style="fill:var(${last?'--feed':'--surface'});stroke:var(--feed)" stroke-width="2.5"/>`});
+  const lp=pts[pts.length-1];const lx=X(lp),ly=Y(lp.v);const lbl=fmtWeight(lp.v);
+  s+=`<text x="${Math.min(Math.max(lx,pl+40),W-pr-40)}" y="${ly-14}" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--ink)">${lbl}</text>`;
+  s+=`<text x="${pl}" y="${H-6}" font-size="10" style="fill:var(--muted)">${fmtDate(pts[0].d,{month:'short',day:'numeric'})}</text>`;
+  if(!one)s+=`<text x="${W-pr}" y="${H-6}" text-anchor="end" font-size="10" style="fill:var(--muted)">${fmtDate(lp.d,{month:'short',day:'numeric'})}</text>`;
+  return s+'</svg>';
+}
+const WIN_COLOR={'A first':'--accent','Bright spot':'--feed','Feeding':'--feed','Growing':'--weight','Moving':'--exercise','Sounds and talking':'--sleep','Health':'--nurse','Just because':'--diaper'};
+const addWin=()=>editRec('wins',null,null,()=>celebrate());
+function vJourney(){
+  const name=S.profile.babyName||'Baby';const w=weights();const first=w[0],last=w[w.length-1];const gain=w.length>1?totOz(last)-totOz(first):0;
+  const wins=[...S.wins].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const t=today();const days=[...Array(14)].map((_,i)=>addDays(t,i-13));const lbl=d=>fmtDate(d,{month:'numeric',day:'numeric'});
+  const feed=days.map(d=>({l:lbl(d),v:feedTotal(d)}));const ex=days.map(d=>({l:lbl(d),v:S.logs.filter(l=>l.date===d&&l.type==='exercise').reduce((s,x)=>s+(Number(x.minutes)||0),0)}));
+  const has=a=>a.some(d=>d.v>0);
+  const lens=w.filter(l=>Number(l.length)>0),heads=w.filter(l=>Number(l.head)>0);
+  const meas=(label,arr,k)=>{if(!arr.length)return null;const a=Number(arr[0][k]),b=Number(arr[arr.length-1][k]);return h('div',{class:'stat'},h('div',{class:'k',text:label}),h('div',{class:'v',text:b+' in'}),h('div',{class:'d',text:arr.length>1&&b>a?`Up ${n1(b-a)} in since ${fmtDate(arr[0].date,{month:'short',day:'numeric'})}`:fmtDate(arr[arr.length-1].date)}))};
+  const recent=w.slice(-6).map((l,i,arr)=>{const idx=w.indexOf(l);const prev=w[idx-1];const d=prev?totOz(l)-totOz(prev):0;
+    return h('button',{class:'row',onclick:()=>editLog('weight',l)},h('div',{class:'main'},h('div',{class:'title',text:fmtWeight(totOz(l))}),h('div',{class:'sub',text:[fmtDate(l.date),l.note].filter(Boolean).join(' · ')})),
+      prev?h('span',{class:'gain '+(d>0?'up':d<0?'down':''),text:d>0?'+'+fmtGain(d):d<0?'−'+fmtGain(d):'Same'}):h('span',{class:'gain',text:'First'}))}).reverse();
+  const card=(title,right,body)=>h('section',{},h('h2',{text:title}),h('div',{class:'card chart'},h('div',{class:'cap'},h('span',{class:'muted small',text:right[0]}),h('b',{class:'small',text:right[1]})),body));
+  return[
+    h('section',{class:'journey-hero'},
+      h('div',{class:'eyebrow',text:`${name}’s journey`}),
+      w.length>1&&gain>0?h('div',{class:'big',text:`Up ${fmtGain(gain)}`}):w.length?h('div',{class:'big',text:fmtWeight(totOz(last))}):h('div',{class:'big',text:'Every step counts'}),
+      h('p',{text:w.length>1?`since ${fmtDate(first.date,{month:'long',day:'numeric'})}, from ${fmtWeight(totOz(first))} to ${fmtWeight(totOz(last))}.`:w.length?`His first weigh in here, ${fmtDate(last.date,{month:'long',day:'numeric'})}. The chart grows with every one you add.`:'Log his weigh ins and celebrate his wins. His story starts here.'}),
+      h('div',{class:'jh-stats'},h('span',{},h('b',{text:String(wins.length)}),' wins celebrated'),h('span',{},h('b',{text:String(w.length)}),' weigh ins')),
+      h('p',{class:'small own',text:`This page only compares ${S.profile.babyName||'him'} to ${S.profile.babyName||'himself'}. No percentiles, no other babies. Every ounce and every first is progress.`}),
+      canWrite?h('div',{style:'display:flex;gap:8px;flex-wrap:wrap'},h('button',{class:'btn small primary',onclick:()=>addWin()},'Celebrate a win'),h('button',{class:'btn small',onclick:()=>{logDate=today();editLog('weight')}},'Log a weigh in')):null),
+    h('section',{},h('h2',{text:'Growing'}),
+      w.length?h('div',{class:'card chart'},h('div',{class:'cap'},h('span',{class:'muted small',text:'Weight at every weigh in'}),wins.length?h('span',{class:'muted small'},h('span',{class:'starkey'}),' a win'):null),h('div',{html:growthChart(w,S.wins)})):
+      empty('Add weigh ins from the pediatrician, specialists or the nurse, and his growth curve draws itself here.','Log a weigh in',()=>{logDate=today();editLog('weight')}),
+      recent.length?h('div',{class:'card list'},recent):null,
+      lens.length||heads.length?h('div',{class:'stats',style:lens.length&&heads.length?null:'grid-template-columns:1fr'},meas('Length',lens,'length'),meas('Head',heads,'head')):null),
+    h('section',{},h('div',{class:'sec-head'},h('h2',{text:'Wins worth celebrating'}),addBtn('Win',()=>addWin())),
+      wins.length?h('div',{class:'card list'},wins.map(x=>h('button',{class:'row',onclick:()=>editRec('wins',x)},
+        h('span',{class:'winstar',style:`background:var(${WIN_COLOR[x.category]||'--accent'})`}),
+        h('div',{class:'main'},h('div',{class:'title',text:x.title}),h('div',{class:'sub',text:[fmtDate(x.date,{month:'long',day:'numeric',year:'numeric'}),x.category].filter(Boolean).join(' · ')}),x.note?h('div',{class:'clamp',text:x.note}):null)))):
+      empty('Big or small, write them down: first time finishing a bottle by mouth, holding his head up in tummy time, a good report from the cardiologist, a first smile. On hard days, this list is the reminder of how far he has come.','Celebrate a win',()=>addWin())),
+    has(feed)?card('Daily intake',['Last 14 days, including night feeds',fmtAmt(feed[13].v)+' today'],h('div',{html:barChart(feed,'--feed')})):null,
+    has(ex)?card('Exercise minutes',['Last 14 days',ex[13].v+' min today'],h('div',{html:barChart(ex,'--exercise')})):null
+  ];
+}
+function vPlan(){
+  const active=S.plan.filter(p=>p.active!==false),old=S.plan.filter(p=>p.active===false);
+  const byProv={};active.forEach(p=>{(byProv[p.provider||'Other instructions']=byProv[p.provider||'Other instructions']||[]).push(p)});
+  const planRow=p=>h('button',{class:'row',onclick:()=>editRec('plan',p)},h('div',{class:'main'},h('div',{class:'title',style:'font-weight:400',text:p.instruction}),h('div',{class:'sub'},[p.frequency,p.since?'Since '+fmtDate(p.since,{month:'short',day:'numeric'}):''].filter(Boolean).join(' · '))));
+  return[
+    h('section',{},h('div',{class:'sec-head'},h('h2',{text:'Practice at home'}),addBtn('Add',()=>editRec('plan'))),
+      active.length?Object.entries(byProv).map(([prov,items])=>h('div',{style:'display:flex;flex-direction:column;gap:6px'},h('div',{class:'eyebrow',text:prov}),h('div',{class:'card list'},items.map(planRow)))):
+      empty('When a therapist or doctor shows you something to practice at home, add it here. Daily ones become a gentle checklist on the Home screen.','Add one',()=>editRec('plan'))),
+    old.length?h('details',{},h('summary',{class:'muted',text:`Stopped instructions (${old.length})`}),h('div',{class:'card list',style:'margin-top:8px'},old.map(planRow))):null,
+    h('section',{},h('div',{class:'sec-head'},h('h2',{text:'Medicines'}),addBtn('Medicine',()=>editRec('meds'))),
+      S.meds.length?h('div',{class:'card list'},S.meds.map(m=>h('button',{class:'row',onclick:()=>editRec('meds',m)},h('span',{class:'stripe',style:'background:var(--med)'}),h('div',{class:'main'},h('div',{class:'title',text:m.name}),h('div',{class:'sub'},[m.dose,m.when].filter(Boolean).join(' · ')),m.prescriber||m.pharmacy?h('div',{class:'sub'},[m.prescriber,m.pharmacy].filter(Boolean).join(' · ')):null)))):
+      empty('Keep the current medicine list here so anyone giving a dose can check it.','Add medicine',()=>editRec('meds')),
+      h('p',{class:'muted small',style:'margin:0'},'Reread the label each time you prepare a dose, give it exactly as prescribed, and use one pharmacy so the pharmacist knows his history. ',
+        h('a',{href:'https://www.choa.org/patients/after-you-go-home',target:'_blank',rel:'noopener',style:'color:var(--accent-text)'},'Children’s Healthcare of Atlanta guidance')))
+  ];
+}
+function vMore(){
+  return[
+    h('section',{class:'team-intro'},h('p',{text:`Everyone who helps ${S.profile.babyName||'him'} grow, in one place.`})),
+    h('section',{},h('div',{class:'sec-head'},h('h2',{text:'His helpers'}),addBtn('Helper',()=>editRec('team'))),
+      S.team.length?h('div',{class:'card list'},S.team.map(p=>h('div',{class:'row'},h('div',{class:'main'},h('div',{class:'title',text:p.name}),p.role?h('div',{class:'sub',text:p.role}):null,p.phone?h('div',{class:'phone',text:p.phone}):null,p.notes?h('div',{class:'sub',text:p.notes}):null),
+        h('div',{style:'display:flex;flex-direction:column;gap:6px'},p.phone?h('button',{class:'btn small',onclick:()=>copy(p.phone)},'Copy'):null,h('button',{class:'btn small',onclick:()=>editRec('team',p)},canWrite?'Edit':'View'))))):
+      empty('Add his doctors, specialists, therapists, home nurse and pharmacy with their phone numbers.','Add person',()=>editRec('team'))),
+    ...vPlan(),
+    h('section',{},h('h2',{text:'Helpful numbers'}),h('div',{class:'card list'},
+      h('div',{class:'row'},h('div',{class:'main'},h('div',{class:'title',text:'Emergency'}),h('div',{class:'phone',text:'911'}))),
+      h('div',{class:'row'},h('div',{class:'main'},h('div',{class:'title',text:'Children’s Healthcare of Atlanta'}),h('div',{class:'phone',text:'404-785-KIDS (5437)'})),h('button',{class:'btn small',onclick:()=>copy('404-785-5437')},'Copy')))),
+    h('section',{},h('h2',{text:'Settings'}),h('div',{class:'card list'},
+      h('div',{class:'row'},h('div',{class:'main'},h('div',{class:'title',text:'Photo'}),h('div',{class:'sub',text:S.profile.photoId?'Shown on the Today screen':'No photo yet'})),assetsApi&&canWrite?h('div',{style:'display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end'},h('button',{class:'btn small',onclick:pickPhoto},S.profile.photoId?'Change':'Add'),S.profile.photoId?h('button',{class:'btn small',onclick:removePhoto},'Remove'):null):null),
+      h('div',{class:'row'},h('div',{class:'main'},h('div',{class:'title',text:'Baby’s name'}),h('div',{class:'sub',text:S.profile.babyName||'Not set'})),canWrite?h('button',{class:'btn small',onclick:editProfile},'Edit'):null),
+      h('div',{class:'row'},h('div',{class:'main'},h('div',{class:'title',text:'Daily encouragement'}),h('div',{class:'sub',text:S.profile.faith===false?'Gentle words':'Scripture'})),canWrite?h('button',{class:'btn small',onclick:editProfile},'Edit'):null),
+      h('div',{class:'row'},h('div',{class:'main'},h('div',{class:'title',text:'Feeding amounts in'}),h('div',{class:'sub',text:unitPref()==='ml'?'Milliliters (ml)':'Ounces (oz)'})),canWrite?h('button',{class:'btn small',onclick:editProfile},'Edit'):null)),
+      h('p',{class:'muted small',style:'margin:0',text:'To let someone add entries, invite them by email from the Share menu with Editor access. They sign in to Claude to use it. Keep the public link off, since anyone opening it that way can only view. Each entry shows who added it.'})),
+    h('p',{class:'foot',text:'This tracker helps the family stay organized. It is not medical advice. Follow your care team, and call 911 in an emergency.'})
+  ];
+}
+function banner(){
+  if(status==='loading')return h('div',{class:'banner',text:'Loading your family’s tracker…'});
+  if(status==='nodb')return h('div',{class:'banner',text:'Open this page while signed in to claude.ai to see and add the family’s entries.'});
+  return null;
+}
+async function saveProfile(v){const ref=db.doc('meta/profile');try{await ref.update(v)}catch(e){if(e&&e.code==='invalid_argument'&&!S.profileExists)await ref.set(v);else throw e}}
+async function copy(t){try{await navigator.clipboard.writeText(t);toast('Copied')}catch(e){toast('Copy did not work. Press and hold the text to select it.')}}
+async function toggleCheck(id,on){const next={...S.checklist};if(on)next[id]=myId||true;else delete next[id];try{await db.doc('meta/checklist').set({checked:next})}catch(e){toast(errMsg(e))}}
+async function toggleDaily(id,on){if(!db)return;const ref=db.collection('daily/'+dailyDate+'/done').doc(id);try{if(on)await ref.set({by:myId||'',at:Date.now()});else await ref.delete()}catch(e){toast(errMsg(e))}}
+function editProfile(){openForm({title:'Settings',fields:[{k:'babyName',label:'Baby’s name'},{k:'feedUnit',label:'Feeding amounts in',type:'select',options:[['oz','Ounces (oz)'],['ml','Milliliters (ml)']]},{k:'faith',label:'Daily encouragement',type:'select',options:[['yes','Scripture'],['no','Gentle words']]}],values:{babyName:S.profile.babyName||'',feedUnit:unitPref(),faith:S.profile.faith===false?'no':'yes'},
+  onSave:async v=>{v.faith=v.faith!=='no';try{await saveProfile(v);return true}catch(e){toast(errMsg(e));return false}}})}
+
+/* ---------- capture an update from the nurse, a therapist or a doctor ---------- */
+const THERAPY=['Physical therapy','Occupational therapy','Speech therapy'];
+const DOCTOR_KINDS=APPT_KINDS.filter(k=>k!=='In-home nurse'&&!THERAPY.includes(k));
+const CAPTURE={
+  nurse:{title:'Nurse text',label:'The nurse’s text',ph:'In Messages, press and hold her text, tap Copy, then paste it here',photo:'Or a screenshot of the text',
+    hint:'Claude pulls out feedings, diapers, vitals, exercises and concerns. You check it before it saves.'},
+  therapy:{title:'Therapy handoff',label:'What the therapist told you',ph:'Tap the microphone on your keyboard and say what they told you at pickup',photo:null,kinds:THERAPY,
+    hint:'Say it the way they said it. Claude separates what they worked on from what to practice at home.'},
+  visit:{title:'Doctor visit summary',label:'Text copied from MyChart',ph:'Open the visit in MyChart, copy the After Visit Summary, paste it here',photo:'Or a photo of the summary sheet',kinds:DOCTOR_KINDS,
+    hint:'Claude pulls out what happened, what to do at home, medicine changes and the next appointment.'}
+};
+const PROMPTS={
+  nurse:text=>`A family is logging the daily update from a home health nurse caring for their baby. Reply with only a JSON object with exactly these keys, using null for anything the update does not say:
+{"date":"YYYY-MM-DD","time":"HH:MM (24 hour)","nurse":"name","intake":number (total amount the baby took in),"unit":"oz" or "ml","feeds":"short summary of feedings: times, amounts, how he took them","wet":number,"dirty":number,"vitals":"weight, temperature, oxygen and other vitals","activity":"exercises, therapy or tummy time done","concerns":"anything to watch, report or follow up on"}
+Copy facts only from the update. Do not add advice. Today is ${today()}.
+Update:
+"""${text}"""`,
+  therapy:(text,kind)=>`A grandparent picked up a baby from ${kind||'a therapy session'} and is recording the therapist's verbal handoff. The words may be dictated, with run-on sentences or transcription mistakes. Reply with only a JSON object with these keys, using null for anything not said:
+{"summary":"what they worked on and how the baby did, in 1 to 3 plain sentences","homework":"what to practice at home and how often","therapist":"name","next":"next session date as YYYY-MM-DD"}
+Use only what the handoff says. Today is ${today()}.
+Handoff:
+"""${text}"""`,
+  visit:(text,kind)=>`A family is recording a baby's After Visit Summary from a doctor's appointment. Reply with only a JSON object with these keys, using null for anything the summary does not say:
+{"kind":one of ${JSON.stringify(DOCTOR_KINDS)},"provider":"doctor or clinic name","date":"YYYY-MM-DD of the visit","title":"reason for the visit in a few words","summary":"what happened: findings, measurements such as weight, results, in plain words","homework":"instructions for home","medChanges":"medicines started, stopped or changed, with doses","next":{"date":"YYYY-MM-DD","time":"HH:MM (24 hour)","what":"what the next appointment is for"}}
+${kind?`The family says this was a ${kind} visit.`:''} Copy facts only from the summary. Do not add advice. Today is ${today()}.
+Summary:
+"""${text}"""`
+};
+function openCapture(mode){
+  if(!canWrite)return;
+  const C=CAPTURE[mode];const dlg=$('#sheet'),form=$('#sheetForm');form.replaceChildren();
+  if(!sampleFn){ // no Claude on this page: fall back to the plain forms
+    if(mode==='nurse'){logDate=today();return editLog('nurse')}
+    return editRec('appts',null,{kind:mode==='therapy'?THERAPY[0]:DOCTOR_KINDS[0],date:today()});
+  }
+  const kindSel=C.kinds?h('select',{id:'capKind'},mode==='visit'?h('option',{value:''},'Let Claude tell from the summary'):null,C.kinds.map(k=>h('option',{value:k},k))):null;
+  const ta=h('textarea',{id:'capText',rows:7,placeholder:C.ph});
+  const photo=C.photo&&sampleImages?h('input',{id:'capPhoto',type:'file',accept:'image/*'}):null;
+  const note=h('p',{class:'muted small',style:'margin:0',text:C.hint});
+  const go=h('button',{type:'submit',class:'btn primary'},'Sort it for me');
+  const manual=h('button',{type:'button',class:'btn',onclick:()=>{const t=ta.value.trim();dlg.close();
+    if(mode==='nurse'){logDate=today();editLog('nurse',null,{text:t})}else editRec('appts',null,{kind:kindSel&&kindSel.value||(mode==='therapy'?THERAPY[0]:DOCTOR_KINDS[0]),date:today(),summary:t})}},'Type it in myself');
+  form.append(h('div',{class:'sheet-head'},h('h3',{text:C.title}),h('button',{type:'button',class:'icon-btn','aria-label':'Close',onclick:()=>dlg.close()},'×')),
+    h('div',{class:'fields'},
+      kindSel?h('div',{class:'field'},h('label',{for:'capKind',text:'Which visit'}),kindSel):null,
+      h('div',{class:'field'},h('label',{for:'capText',text:C.label}),ta),
+      photo?h('div',{class:'field'},h('label',{for:'capPhoto',text:C.photo}),photo):null),
+    note,h('div',{class:'sheet-actions'},manual,h('div',{class:'right'},go)));
+  form.onsubmit=async ev=>{
+    ev.preventDefault();const text=ta.value.trim().slice(0,15000);const img=photo&&photo.files[0];const kind=kindSel?kindSel.value:'';
+    if(!text&&!img){toast(photo?'Paste the text or add a photo first':'Add what they told you first');ta.focus();return}
+    go.disabled=true;go.textContent='Reading…';note.textContent='Reading it now. This can take up to a minute.';
+    let prompt=PROMPTS[mode](text||'(see the attached photo)',kind);if(img)prompt='The update is in the attached photo'+(text?' and the text below':'')+'.\n'+prompt;
+    try{
+      const r=await sampleFn.json(prompt,img?{images:[img]}:{})||{};
+      dlg.close();applyCapture(mode,r,text||'(from a photo)',kind);
+    }catch(e){
+      go.disabled=false;go.textContent='Try again';const c=e&&e.code;
+      note.textContent=c==='not_granted'||c==='sampling_disabled'?'Claude is not allowed on this page for you, so type it in instead.':c==='rate_limited'?'Too many requests right now. Wait a minute and try again, or type it in.':c==='image_rejected'?'That photo could not be read. Try a clearer photo or paste the text.':'Could not sort that. Try again, or type it in.';
+    }
+  };
+  dlg.showModal();setTimeout(()=>(kindSel||ta).focus(),50);
+}
+const okDate=v=>/^\d{4}-\d{2}-\d{2}$/.test(v||'')?v:null;
+const okTime=v=>/^\d{1,2}:\d{2}$/.test(v||'')?v.padStart(5,'0'):null;
+const num=v=>v==null||v===''||isNaN(Number(v))?null:Number(v);
+const str=v=>v==null?'':String(v).trim();
+function applyCapture(mode,r,raw,kind){
+  if(mode==='nurse'){
+    return editLog('nurse',null,{date:okDate(r.date)||today(),time:okTime(r.time)||nowTime(),nurse:str(r.nurse),intake:num(r.intake),unit:r.unit==='ml'||r.unit==='oz'?r.unit:unitPref(),
+      feeds:str(r.feeds),wet:num(r.wet),dirty:num(r.dirty),vitals:str(r.vitals),activity:str(r.activity),concerns:str(r.concerns),text:raw});
+  }
+  if(mode==='therapy'){
+    const t=today();const match=S.appts.find(a=>a.date===t&&a.kind===kind);
+    const pre={kind,date:t,summary:str(r.summary),homework:str(r.homework)};if(r.therapist&&!(match&&match.provider))pre.provider=str(r.therapist);
+    const nextDate=okDate(r.next);
+    return editRec('appts',match||null,match?pre:{...pre,title:kind+' session'},nextDate?()=>offerNext({kind,date:nextDate,provider:pre.provider||(match&&match.provider)||'',title:kind+' session'}):null);
+  }
+  const k=DOCTOR_KINDS.includes(r.kind)?r.kind:(kind||DOCTOR_KINDS[0]);const d=okDate(r.date)||today();
+  const match=S.appts.find(a=>a.date===d&&a.kind===k);
+  const home=[str(r.homework),r.medChanges?'Medicine changes: '+str(r.medChanges):''].filter(Boolean).join('\n');
+  const pre={kind:k,date:d,summary:str(r.summary),homework:home};if(r.provider&&!(match&&match.provider))pre.provider=str(r.provider);if(!match&&r.title)pre.title=str(r.title);
+  const nx=r.next&&okDate(r.next.date)?{kind:k,date:r.next.date,time:okTime(r.next.time)||'',provider:pre.provider||(match&&match.provider)||'',title:str(r.next.what)||k+' follow up'}:null;
+  editRec('appts',match||null,pre,nx?()=>offerNext(nx):null);
+}
+function offerNext(nx){
+  if(S.appts.some(a=>a.date===nx.date&&a.kind===nx.kind))return;
+  toast('Add the next appointment they mentioned');editRec('appts',null,nx);
+}
+
+/* ---------- visit sheet: everything the next provider should know ---------- */
+function buildVisitSheet(a){
+  const t=today(),name=S.profile.babyName||'Baby',secs=[];
+  const meds=S.meds.map(m=>[m.name,m.dose,m.when].filter(Boolean).join(', '));
+  secs.push(['Current medicines',meds.length?meds:['None listed']]);
+  const w=S.logs.filter(l=>l.type==='weight'&&totOz(l)>0&&l.date>=addDays(t,-60)).sort((x,y)=>x.date.localeCompare(y.date)).map(l=>`${fmtDate(l.date,{month:'short',day:'numeric'})}: ${fmtWeight(totOz(l))}${l.note?' ('+l.note+')':''}`);
+  secs.push(['Weight, last 60 days',w.length?w:['No weigh ins logged']]);
+  const feed=[...Array(7)].map((_,i)=>addDays(t,i-7)).map(d=>{const v=feedTotal(d);return`${fmtDate(d)}: ${v?fmtAmt(v):'not logged'}`});
+  secs.push(['Daily intake, last 7 days (includes night feeds)',feed]);
+  const nfs=sortLogs(S.logs.filter(l=>l.type==='nightfeed'&&l.date>=addDays(t,-7))).map(l=>`${fmtDate(l.date,{month:'short',day:'numeric'})}: ${LOG.nightfeed.line(l)}`);
+  secs.push(['Night feeds, last 7 nights',nfs.length?nfs:['None logged']]);
+  const nc=sortLogs(S.logs.filter(l=>l.type==='nurse'&&l.concerns&&l.date>=addDays(t,-14))).map(l=>`${fmtDate(l.date,{month:'short',day:'numeric'})}: ${l.concerns}`);
+  secs.push(['Nurse concerns, last 14 days',nc.length?nc:['None noted']]);
+  const latest={};S.appts.filter(x=>x.date<=t&&x.date>=addDays(t,-90)&&(x.summary||x.homework)&&x.kind!==a.kind).sort((x,y)=>apptKey(y).localeCompare(apptKey(x))).forEach(x=>{if(!latest[x.kind])latest[x.kind]=x});
+  const prov=Object.values(latest).map(x=>`${x.kind}${x.provider?' ('+x.provider+')':''}, ${fmtDate(x.date,{month:'short',day:'numeric'})}: ${[x.summary,x.homework?'At home: '+x.homework:''].filter(Boolean).join(' ')}`);
+  secs.push(['What other providers said recently',prov.length?prov:['No other visit notes yet']]);
+  const last=S.appts.filter(x=>x.kind===a.kind&&x.date<t&&(x.summary||x.homework)).sort((x,y)=>apptKey(y).localeCompare(apptKey(x)))[0];
+  if(last)secs.push([`Last ${a.kind} visit, ${fmtDate(last.date,{month:'short',day:'numeric'})}`,[last.summary,last.homework?'At home: '+last.homework:''].filter(Boolean)]);
+  const plan=S.plan.filter(p=>p.active!==false).map(p=>`${p.instruction}${p.provider?' ('+p.provider+')':''}`);
+  secs.push(['Current home care plan',plan.length?plan:['None listed']]);
+  const qs=S.questions.filter(q=>!q.done&&(!q.for||[a.provider,a.kind].some(v=>v&&q.for.toLowerCase().includes(v.toLowerCase())||v&&v.toLowerCase().includes(q.for.toLowerCase())))).map(q=>q.text);
+  secs.push(['Our questions',qs.length?qs:['None yet. Add them on the Today tab.']]);
+  return{title:`${name}: ${a.title||a.kind}`,sub:[fmtDate(a.date,{weekday:'long',month:'long',day:'numeric'}),a.time?fmtTime(a.time):'',a.provider].filter(Boolean).join(' · '),secs};
+}
+function openVisitSheet(a){
+  const s=buildVisitSheet(a);const dlg=$('#sheet'),form=$('#sheetForm');form.replaceChildren();form.onsubmit=e=>e.preventDefault();
+  const plain=[s.title,s.sub,'',...s.secs.flatMap(([k,items])=>[k.toUpperCase(),...items.map(i=>'• '+i),''])].join('\n');
+  form.append(h('div',{class:'sheet-head'},h('h3',{text:'Visit sheet'}),h('button',{type:'button',class:'icon-btn','aria-label':'Close',onclick:()=>dlg.close()},'×')),
+    h('div',{class:'vsheet'},h('div',{class:'vs-title',text:s.title}),h('div',{class:'muted small',text:s.sub}),
+      s.secs.map(([k,items])=>h('div',{class:'vs-sec'},h('div',{class:'eyebrow',text:k}),h('ul',{},items.map(i=>h('li',{text:i})))))),
+    h('p',{class:'muted small',style:'margin:0',text:'Copy it into a text or email, or show this screen at check in.'}),
+    h('div',{class:'sheet-actions'},h('div',{class:'right'},h('button',{type:'button',class:'btn',onclick:()=>dlg.close()},'Close'),h('button',{type:'button',class:'btn primary',onclick:()=>copy(plain)},'Copy sheet'))));
+  dlg.showModal();
+}
+
+/* ---------- the child's photo ---------- */
+let assetsApi=null;
+function initialEl(extra){const n=(S.profile.babyName||'').trim();return h('span',{class:'initial'},n?n[0].toUpperCase():'♡',extra||null)}
+function photoEl(big){
+  const id=S.profile.photoId;
+  if(id){const img=h('img',{src:'/_blob/'+id,alt:(S.profile.babyName||'Baby')+'’s photo'});img.addEventListener('error',()=>img.replaceWith(initialEl()));return img}
+  return initialEl(big&&assetsApi&&canWrite?h('small',{text:'Add photo'}):null);
+}
+async function shrink(file){
+  try{const bmp=await createImageBitmap(file);const sc=Math.min(1,1000/Math.max(bmp.width,bmp.height));const c=document.createElement('canvas');c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    return await new Promise(r=>c.toBlob(b=>r(b||file),'image/jpeg',0.86))}catch(e){return file}
+}
+function pickPhoto(){
+  if(!assetsApi||!db)return;
+  const inp=h('input',{type:'file',accept:'image/*',hidden:true});document.body.append(inp);
+  inp.addEventListener('change',async()=>{
+    const f=inp.files[0];inp.remove();if(!f)return;toast('Adding the photo…');
+    try{
+      const b=await shrink(f);const r=await assetsApi.upload(b,b.type==='image/jpeg'?{type:'image/jpeg'}:undefined);
+      const old=S.profile.photoId;await saveProfile({photoId:r.id});
+      if(old&&old!==r.id)assetsApi.delete(old).catch(()=>{});
+      toast('Photo added');
+    }catch(e){const c=e&&e.code;toast(c==='too_large'?'That photo is too large. Try a smaller one.':c==='unsupported_type'?'That photo type is not supported. Try a JPEG or PNG.':'Could not add the photo. Try again.')}
+  });
+  inp.click();
+}
+async function removePhoto(){
+  const old=S.profile.photoId;if(!old)return;
+  try{await saveProfile({photoId:null});if(assetsApi)assetsApi.delete(old).catch(()=>{});toast('Photo removed')}catch(e){toast(errMsg(e))}
+}
+function ageText(){
+  const b=S.profile.birthDate;if(!b)return'';const d=parseYmd(b),n=new Date();let m=(n.getFullYear()-d.getFullYear())*12+n.getMonth()-d.getMonth();if(n.getDate()<d.getDate())m--;if(m<0)return'';
+  const y=Math.floor(m/12),r=m%12;if(!y)return`${r} month${r===1?'':'s'} old`;return`${y} year${y===1?'':'s'}${r?`, ${r} month${r===1?'':'s'}`:''} old`;
+}
+function hero(){
+  const name=S.profile.babyName||'Little one';const hr=new Date().getHours();
+  const greet=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
+  const canPhoto=assetsApi&&canWrite;
+  const ph=canPhoto?h('button',{class:'hero-photo','aria-label':S.profile.photoId?'Change photo':'Add a photo',onclick:pickPhoto},photoEl(true)):h('div',{class:'hero-photo'},photoEl(true));
+  const w=weights();const g=w.length>1?totOz(w[w.length-1])-totOz(w[0]):0;
+  return h('section',{class:'hero'},h('span',{class:'deco','aria-hidden':'true',html:DECO}),ph,h('div',{class:'hero-text'},
+    h('div',{class:'eyebrow',text:greet}),h('div',{class:'hero-name',text:name}),
+    ageText()?h('div',{class:'hero-age',text:ageText()}):null,
+    g>0?h('button',{class:'win-pill',onclick:()=>{tab='journey';window.scrollTo(0,0);render()}},h('span',{class:'starkey'}),` Up ${fmtGain(g)} since ${w[0].note==='Birth weight'?'birth':fmtDate(w[0].date,{month:'short',day:'numeric'})}`):null,
+    null));
+}
+const DECO='<svg viewBox="0 0 200 120" width="200" height="120"><g fill="none" stroke-width="2" stroke-linecap="round"><path d="M150 22l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" style="stroke:var(--accent-text);fill:var(--accent)"/><path d="M178 46l2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1z" style="stroke:var(--accent-text);fill:var(--accent)"/><circle cx="186" cy="20" r="3" style="fill:var(--weight)"/><circle cx="132" cy="48" r="2.5" style="fill:var(--exercise)"/></g></svg>';
+
+/* ---------- icons, add menu, celebration ---------- */
+const ICON={
+  feed:'<path d="M9.5 3h5M10 3v3L8 9v11a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9l-2-3V3"/><path d="M8 13h8"/>',
+  nightfeed:'<path d="M20 14.5A8 8 0 1 1 9.5 4 6.5 6.5 0 0 0 20 14.5z"/>',
+  diaper:'<path d="M7 18h10a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1A4.5 4.5 0 0 0 7 18z"/>',
+  sleep:'<path d="M4 6h6l-6 7h6M13 12h5l-5 6h5"/>',
+  exercise:'<circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c3 3 3 13 0 16M12 4c-3 3-3 13 0 16"/>',
+  weight:'<path d="M12 20v-8"/><path d="M12 12c0-4 3-6 7-6 0 4-3 6-7 6z"/><path d="M12 14c0-3-2.5-5-6-5 0 3.5 2.5 5 6 5z"/><path d="M8 20h8"/>',
+  med:'<rect x="4" y="9" width="16" height="7" rx="3.5" transform="rotate(-35 12 12.5)"/><path d="M10 8.5l4 7"/>',
+  nurse:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M12 17s-3-1.8-3-4a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 2.2-3 4-3 4z"/>',
+  note:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/>',
+  therapy:'<path d="M7 11V6a1.5 1.5 0 0 1 3 0v5M10 10V4.5a1.5 1.5 0 0 1 3 0V10M13 10V5.5a1.5 1.5 0 0 1 3 0V12M16 9.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-3l-2.5-4a1.5 1.5 0 0 1 2.5-1.6L7 14"/>',
+  visit:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/>',
+  win:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
+  question:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5v.01"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'
+};
+const svg=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]||ICON.note}</svg>`;
+function bubble(n,c){return h('span',{class:'bubble',style:`--c:var(${c||'--accent'})`,html:svg(n)})}
+function openAddMenu(){
+  const dlg=$('#sheet'),form=$('#sheetForm');form.replaceChildren();form.onsubmit=e=>e.preventDefault();
+  const go=fn=>()=>{dlg.close();setTimeout(fn,60)};
+  const tile=(ic,c,label,fn)=>h('button',{type:'button',class:'add-tile',onclick:go(fn)},bubble(ic,c),h('span',{text:label}));
+  const L=t=>()=>{logDate=tab==='log'?logDate:today();editLog(t)};
+  const name=S.profile.babyName||'his';
+  form.append(h('div',{class:'sheet-head'},h('h3',{text:'Add a moment'}),h('button',{type:'button',class:'icon-btn','aria-label':'Close',onclick:()=>dlg.close()},'×')),
+    h('div',{class:'eyebrow',text:`${name}’s day`}),
+    h('div',{class:'add-grid'},tile('feed','--feed','Meal',L('feed')),tile('nightfeed','--sleep','Night feed',L('nightfeed')),tile('diaper','--diaper','Diaper',L('diaper')),tile('sleep','--sleep','Nap',L('sleep')),
+      tile('exercise','--exercise','Playtime',L('exercise')),tile('med','--med','Medicine',L('med')),tile('weight','--weight','Weigh in',L('weight')),tile('note','--note','Note',L('note'))),
+    h('div',{class:'eyebrow',text:'From his helpers'}),
+    h('div',{class:'add-grid'},tile('nurse','--nurse','Nurse text',()=>openCapture('nurse')),tile('therapy','--exercise','Therapy handoff',()=>openCapture('therapy')),tile('visit','--weight','Doctor visit',()=>openCapture('visit')),tile('visit','--accent','Plan a visit',()=>editRec('appts'))),
+    h('div',{class:'eyebrow',text:'Good things'}),
+    h('div',{class:'add-grid'},tile('win','--accent','A win',addWin),tile('question','--sleep','A question',()=>editRec('questions'))));
+  dlg.showModal();
+}
+function celebrate(){
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const cs=getComputedStyle(document.documentElement);const cols=['--accent','--feed','--weight','--exercise','--sleep','--nurse'].map(v=>cs.getPropertyValue(v).trim()||'#F4B33F');
+  const c=h('canvas',{class:'confetti','aria-hidden':'true'});document.body.append(c);const W=c.width=innerWidth,H=c.height=innerHeight;const x=c.getContext('2d');
+  const ps=[...Array(90)].map(()=>({x:W/2+(Math.random()-.5)*W*.3,y:H*.35,vx:(Math.random()-.5)*9,vy:-Math.random()*9-3,r:Math.random()*6+4,c:cols[Math.floor(Math.random()*cols.length)],a:Math.random()*6,s:Math.random()>.5}));
+  const t0=performance.now();(function f(t){const k=(t-t0)/1600;x.clearRect(0,0,W,H);ps.forEach(p=>{p.vy+=.28;p.x+=p.vx;p.y+=p.vy;p.a+=.15;x.save();x.globalAlpha=Math.max(0,1-k);x.fillStyle=p.c;x.translate(p.x,p.y);x.rotate(p.a);if(p.s){x.beginPath();x.arc(0,0,p.r/2,0,7);x.fill()}else x.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);x.restore()});if(k<1)requestAnimationFrame(f);else c.remove()})(t0);
+}
+
+/* ---------- render ---------- */
+let raf=0;function render(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;draw()})}
+function draw(){
+  $('#babyName').textContent=S.profile.babyName||'Little one';
+  $('#avatar').replaceChildren(photoEl(false));
+  $('#todayChip').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'});
+  document.querySelectorAll('nav.tabs button').forEach(b=>{if(b.dataset.tab===tab)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+  const views={today:vToday,schedule:vSchedule,log:vLog,journey:vJourney,more:vMore};if(tab==='plan')tab='more';
+  const ae=document.activeElement,aeId=ae&&ae.id&&$('#view').contains(ae)?ae.id:null,keep=aeId&&'value' in ae?{v:ae.value,a:ae.selectionStart,b:ae.selectionEnd}:null;
+  const y=window.scrollY;$('#view').replaceChildren(...[].concat((views[tab]||vToday)()).flat().filter(Boolean));window.scrollTo(0,y);
+  if(aeId){const el=document.getElementById(aeId);if(el){if(keep){el.value=keep.v;try{el.setSelectionRange(keep.a,keep.b)}catch(e){}}el.focus({preventScroll:true})}}
+  if(!canWrite&&status==='ready')$('#view').prepend(h('div',{class:'banner',text:'You can view this tracker. Ask the owner to invite you as an Editor to add entries.'}));
+  $('#fab').hidden=!(canWrite&&status==='ready');
+  fillNames();
+}
+async function fillNames(){
+  if(!user)return;const els=[...document.querySelectorAll('[data-uid]')].filter(e=>e.dataset.uid!=='true');if(!els.length)return;
+  const ps=await user.profiles([...new Set(els.map(e=>e.dataset.uid))]);
+  els.forEach(e=>{const p=ps[e.dataset.uid];e.textContent=p&&p.isMe?'you':((p&&p.name)||'family')});
+}
+$('#fab').addEventListener('click',openAddMenu);
+document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;store.set('tab',tab);if(tab==='log')logDate=today();window.scrollTo(0,0);render()}));
+
+/* ---------- daily practice checks, one document per item ---------- */
+let dailyDate=today(),dailyUnsub=null;
+function subDaily(){
+  if(dailyUnsub)dailyUnsub();dailyDate=today();S.daily={};
+  dailyUnsub=db.collection('daily/'+dailyDate+'/done').onSnapshot(s=>{S.daily=Object.fromEntries(s.docs.map(d=>[d.id,(d.data()||{}).by||true]));render()},()=>{});
+}
+
+/* ---------- weekly visits that are about to run out ---------- */
+function weeklySeries(){
+  const g={};S.appts.forEach(a=>{if(!a.date)return;const k=[a.kind,a.title||'',a.time||'',parseYmd(a.date).getDay()].join('|');(g[k]=g[k]||[]).push(a)});
+  return Object.values(g).filter(x=>x.length>=4).map(x=>{x.sort((a,b)=>a.date.localeCompare(b.date));return{items:x,last:x[x.length-1]}});
+}
+const seriesKey=sr=>'ext:'+sr.last.kind+'|'+sr.last.title+'|'+sr.last.date;
+function endingSeries(days){const t=today();return weeklySeries().filter(sr=>sr.last.date>=t&&sr.last.date<=addDays(t,days)&&store.get(seriesKey(sr))!=='no')}
+async function extendSeries(sr,btn){
+  if(btn){btn.disabled=true;btn.textContent='Adding…'}
+  const base=sr.items.find(a=>a.notes&&!/first session|confirm with/i.test(a.notes))||sr.items[1]||sr.items[0];
+  const keep=['kind','title','provider','time','location','who','bring'];const copy={};keep.forEach(k=>{if(base[k])copy[k]=base[k]});if(base.notes&&!/first session|confirm with/i.test(base.notes))copy.notes=base.notes;
+  for(let i=1;i<=12;i++){if(!await add('appts',{...copy,date:addDays(sr.last.date,7*i)})){render();return}}
+  toast('Added 12 more weeks');
+}
+function seriesCards(days){
+  if(!canWrite)return null;const list=endingSeries(days);if(!list.length)return null;
+  return list.map(sr=>{const wd=parseYmd(sr.last.date).toLocaleDateString(undefined,{weekday:'long'});
+    const yes=h('button',{class:'btn small primary',onclick:e=>extendSeries(sr,e.currentTarget)},'Keep it going 12 more weeks');
+    return h('div',{class:'card soft series'},bubble('visit',KIND_COLOR[sr.last.kind]||'--accent'),h('div',{class:'main'},
+      h('b',{text:`${sr.last.title||sr.last.kind} on ${wd}s ends ${fmtDate(sr.last.date,{month:'short',day:'numeric'})}`}),
+      h('div',{class:'sub',text:'Is it still happening? Add the next three months so nobody misses it.'}),
+      h('div',{style:'display:flex;gap:8px;flex-wrap:wrap;margin-top:8px'},yes,h('button',{class:'btn small',onclick:()=>{store.set(seriesKey(sr),'no');render()}},'It is ending'))))});
+}
+
+/* ---------- boot ---------- */
+async function boot(){
+  render();
+  const c=window.claude;
+  if(!c||!c.use){status='nodb';render();return}
+  [db,user]=await Promise.all([c.use('db'),c.use('user')]);
+  if(user){myId=await user.id();const w=await user.can('data.write');if(w===false)canWrite=false}
+  if(!db){status='nodb';render();return}
+  status='ready';
+  c.use('assets').then(a=>{assetsApi=a;render()}).catch(()=>{});
+  c.use('sample').then(s=>{sampleFn=s;if(s&&s.limits)s.limits().then(l=>{sampleImages=!!(l&&l.images);render()}).catch(()=>{});render()}).catch(()=>{});
+  const onErr=e=>{if(e&&e.code==='revoked'){status='nodb'}render()};
+  COLLS.forEach(k=>db.collection(k).onSnapshot(s=>{S[k]=s.docs.map(d=>({id:d.id,...d.data()}));render()},onErr));
+  db.doc('meta/profile').onSnapshot(s=>{S.profileExists=s.exists;S.profile=s.exists?s.data():{};render()},onErr);
+  db.doc('meta/checklist').onSnapshot(s=>{S.checklist=s.exists?(s.data().checked||{}):{};render()},onErr);
+  subDaily();
+  const tick=()=>{if(today()!==dailyDate){subDaily();logDate=today();homeDay=today();render()}};
+  setInterval(tick,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){tick();render()}});
+  render();
+}
+boot();
+</script>

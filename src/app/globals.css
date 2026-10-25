@@ -1,0 +1,98 @@
+/* Color tokens and type from the prototype's :root block (docs/little-steps-prototype.html). */
+:root {
+  --bg: #FFF8F1; --surface: #FFFFFF; --sunk: #FCEEE1; --ink: #3A2A20; --muted: #7A6354; --line: #F0DCCB;
+  --accent: #F4B33F; --accent-ink: #3A2A20; --accent-soft: #FFF0D2; --accent-text: #A3610A;
+  --hero1: #FFE2CC; --hero2: #FFF1C6; --ring: #FFFFFF;
+  --feed: #E2763F; --diaper: #5E9E5A; --sleep: #8A78C6; --exercise: #2F9C92; --weight: #D35E89; --med: #A8569C; --sky: #E4F1FB; --lav: #EFEAFB; --nurse: #3F8CC7; --note: #958171;
+  --danger: #C23B30; --ok: #3E8E54;
+  --display: var(--font-fredoka), "Trebuchet MS", system-ui, sans-serif;
+  --body: var(--font-atkinson), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r: 16px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1D1612; --surface: #271E18; --sunk: #32271F; --ink: #F7EBE1; --muted: #C4AE9D; --line: #423429;
+    --accent: #F6BE57; --accent-ink: #2A1E14; --accent-soft: #3B2D1B; --accent-text: #F6BE57;
+    --hero1: #3A2619; --hero2: #3A3018; --ring: #271E18;
+    --feed: #F09A68; --diaper: #93C98D; --sleep: #B5A8EC; --exercise: #62C7BC; --weight: #EE93B3; --med: #E2A2D9; --sky: #1C2A36; --lav: #272238; --nurse: #7DB7E6; --note: #B9A797;
+    --danger: #F48C82; --ok: #86CF98; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1D1612; --surface: #271E18; --sunk: #32271F; --ink: #F7EBE1; --muted: #C4AE9D; --line: #423429;
+  --accent: #F6BE57; --accent-ink: #2A1E14; --accent-soft: #3B2D1B; --accent-text: #F6BE57;
+  --hero1: #3A2619; --hero2: #3A3018; --ring: #271E18;
+  --feed: #F09A68; --diaper: #93C98D; --sleep: #B5A8EC; --exercise: #62C7BC; --weight: #EE93B3; --med: #E2A2D9; --sky: #1C2A36; --lav: #272238; --nurse: #7DB7E6; --note: #B9A797;
+  --danger: #F48C82; --ok: #86CF98; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background:
+    radial-gradient(60rem 30rem at -10% -5%, var(--hero1), transparent 60%),
+    radial-gradient(40rem 30rem at 110% 20%, var(--accent-soft), transparent 60%),
+    radial-gradient(40rem 30rem at 50% 110%, var(--lav), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.45;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent-text); outline-offset: 2px; }
+a { color: var(--accent-text); }
+
+.band { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.inner { max-width: 640px; margin: 0 auto; }
+.stack { display: flex; flex-direction: column; gap: 22px; padding-block: 18px 48px; }
+
+h1, h2 { font-family: var(--display); font-weight: 600; margin: 0; text-wrap: balance; }
+h1 { font-size: 1.9rem; line-height: 1.1; }
+h2 { font-size: 1.25rem; }
+p { margin: 0; }
+.eyebrow { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.muted { color: var(--muted); }
+.small { font-size: .875rem; }
+
+section { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.sec-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 3px 14px rgba(140, 80, 30, .06); }
+.card.pad { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.list { display: flex; flex-direction: column; overflow: hidden; }
+.row { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-top: 1px solid var(--line); min-width: 0; }
+.row:first-child { border-top: 0; }
+.row .main { flex: 1; min-width: 0; }
+.row .title { font-weight: 700; overflow-wrap: anywhere; }
+.row .sub { color: var(--muted); font-size: .875rem; overflow-wrap: anywhere; }
+.calm { padding: 14px 16px 16px; color: var(--muted); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 10px 18px; font-weight: 700; cursor: pointer; min-height: 48px; text-decoration: none; color: var(--ink); }
+.btn:hover { background: var(--sunk); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.07); }
+.btn.small { min-height: 40px; padding: 6px 14px; font-size: .9rem; }
+.btn.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+.btn:disabled { opacity: .6; cursor: default; }
+.linkbtn { border: 0; background: none; color: var(--accent-text); font-weight: 700; cursor: pointer; padding: 8px 0; font-size: .95rem; }
+
+.fields { display: flex; flex-wrap: wrap; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 4px; flex: 1 1 100%; min-width: 0; }
+.field.half { flex: 1 1 calc(50% - 6px); }
+.field label, .field legend { font-size: .85rem; font-weight: 700; color: var(--muted); }
+.field input:not([type=checkbox]):not([type=radio]), .field select, .field textarea {
+  width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 12px; padding: 10px 12px; min-height: 48px;
+}
+fieldset.field { border: 0; padding: 0; margin: 0; }
+.choice { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; cursor: pointer; }
+.choice input { width: 22px; height: 22px; margin: 1px 0 0; accent-color: var(--accent-text); flex: none; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+.banner { padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); font-size: .95rem; }
+.banner.warm { background: var(--lav); }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--sunk); color: var(--muted); white-space: nowrap; }
+.copybox { display: flex; gap: 8px; align-items: stretch; }
+.copybox input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--bg); border-radius: 12px; padding: 10px 12px; font-size: .85rem; }
