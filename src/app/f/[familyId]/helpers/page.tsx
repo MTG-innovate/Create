@@ -63,7 +63,7 @@ export default async function HelpersPage({ params }: PageProps<"/f/[familyId]/h
                     <div className="title">{t.name}</div>
                     {t.role ? <div className="sub">{t.role}</div> : null}
                     {t.phone ? (
-                      <a href={`tel:${t.phone.replace(/[^\d+]/g, "")}`} style={{ fontVariantNumeric: "tabular-nums", display: "inline-block", padding: "4px 0" }}>
+                      <a href={`tel:${t.phone.replace(/[^\d+]/g, "")}`} style={{ fontVariantNumeric: "tabular-nums" }}>
                         {t.phone}
                       </a>
                     ) : null}
