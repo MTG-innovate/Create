@@ -1,5 +1,6 @@
 import "server-only";
 import { addDays } from "@/lib/dates";
+import type { JourneyConfig } from "@/lib/journeys";
 import type { Moment, Unit } from "@/lib/moments";
 import { createClient } from "@/lib/supabase/server";
 import { buildVisitSheet, type SheetVisit, type VisitSheet } from "@/lib/visit-sheet";
@@ -14,6 +15,7 @@ export async function loadVisitSheet(opts: {
   familyId: string;
   childId: string;
   childName: string;
+  journey: JourneyConfig;
   visit: SheetVisit;
   today: string;
   unit: Unit;
@@ -38,6 +40,7 @@ export async function loadVisitSheet(opts: {
   ]);
   return buildVisitSheet({
     childName: opts.childName,
+    journey: opts.journey,
     visit: opts.visit,
     today,
     unit: opts.unit,

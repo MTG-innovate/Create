@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { ActionForm, type FormState } from "@/components/action-form";
-import { REPEAT_CHOICES, VISIT_KINDS, type Visit } from "@/lib/visits";
+import { REPEAT_CHOICES, type Visit, type VisitKind } from "@/lib/visits";
 import { removeVisit, saveVisit } from "./actions";
 
 type Props = {
@@ -10,6 +10,8 @@ type Props = {
   visit: Visit | null;
   inSeries: boolean;
   kids: { id: string; name: string }[];
+  /** Visit types the family's journeys offer (visitKindsFor). */
+  kinds: readonly VisitKind[];
   team: string[];
   canEdit: boolean;
   defaultDate: string;
@@ -19,7 +21,7 @@ type Props = {
 };
 
 /** The prototype's visit sheet (CFG.appts), with the same fields and words. */
-export function VisitForm({ familyId, visit, inSeries, kids, team, canEdit, defaultDate, next, draft }: Props) {
+export function VisitForm({ familyId, visit, inSeries, kids, kinds, team, canEdit, defaultDate, next, draft }: Props) {
   const [state, action, pending] = useActionState<FormState, FormData>(saveVisit, {});
   const [scope, setScope] = useState<"this" | "all">("this");
   const v = visit;
@@ -50,8 +52,9 @@ export function VisitForm({ familyId, visit, inSeries, kids, team, canEdit, defa
             )}
             <div className="field">
               <label htmlFor="kind">Type</label>
-              <select id="kind" name="kind" defaultValue={d.kind ?? VISIT_KINDS[0]}>
-                {VISIT_KINDS.map((k) => (
+              <select id="kind" name="kind" defaultValue={d.kind ?? kinds[0]}>
+                {/* A visit keeps its type even if the journey no longer offers it. */}
+                {(d.kind && !kinds.includes(d.kind) ? [d.kind, ...kinds] : kinds).map((k) => (
                   <option key={k}>{k}</option>
                 ))}
               </select>

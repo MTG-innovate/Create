@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { canEdit, canView } from "@/lib/access";
 import { dayLabel, todayIn } from "@/lib/dates";
 import { safeNext } from "@/lib/errors";
+import { visitKindsFor } from "@/lib/journeys";
 import { getFamily } from "@/lib/session";
 import { friendlyKind } from "@/lib/visits";
 import { loadVisit, teamNames } from "@/lib/visits-data";
@@ -34,6 +35,7 @@ export default async function VisitPage({ params, searchParams }: PageProps<"/f/
         visit={visit}
         inSeries={Boolean(series)}
         kids={children.map((c) => ({ id: c.id, name: c.name }))}
+        kinds={visitKindsFor(children.map((c) => c.journey))}
         team={await teamNames(family.id)}
         canEdit={canEdit(me, "visits")}
         defaultDate={visit.date}

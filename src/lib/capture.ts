@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { LITTLE_STEPS, type JourneyConfig } from "./journeys";
 import { VISIT_KINDS, type VisitKind } from "./visits";
 
 // AI capture, from the prototype's CAPTURE, PROMPTS and applyCapture: a nurse
@@ -88,16 +89,20 @@ export const SCHEMAS = {
 export type Extracted<M extends CaptureMode> = z.infer<(typeof SCHEMAS)[M]>;
 
 /** What Claude is asked. It gets only what was pasted or photographed, nothing else about the family. */
-export function capturePrompt(mode: CaptureMode, opts: { today: string; kind?: string; photo?: boolean; hasText?: boolean }): string {
+export function capturePrompt(
+  mode: CaptureMode,
+  opts: { today: string; kind?: string; photo?: boolean; hasText?: boolean; person?: JourneyConfig["aiPerson"] },
+): string {
+  const person = opts.person ?? LITTLE_STEPS.aiPerson;
   const lead = opts.photo ? `The update is in the attached photo${opts.hasText ? " and the text below" : ""}.\n` : "";
   const rules = `Use null for anything it does not say. Copy facts only. Do not add advice. Today is ${opts.today}.`;
   switch (mode) {
     case "nurse":
-      return `${lead}A family is logging the daily update from a home health nurse caring for their baby. Pull out the date, time, nurse, total intake, feedings, diapers, vitals, practice and play, and anything to keep an eye on. ${rules}`;
+      return `${lead}A family is logging the daily update from a home health nurse caring for ${person.their}. Pull out the date, time, nurse, total intake, feedings, diapers, vitals, practice and play, and anything to keep an eye on. ${rules}`;
     case "therapy":
-      return `${lead}A family member picked up a baby from ${opts.kind || "a therapy session"} and is recording the therapist's spoken handoff. The words may be dictated, with run-on sentences or transcription mistakes. Separate what they worked on from what to practice at home. ${rules}`;
+      return `${lead}A family member picked up ${person.a} from ${opts.kind || "a therapy session"} and is recording the therapist's spoken handoff. The words may be dictated, with run-on sentences or transcription mistakes. Separate what they worked on from what to practice at home. ${rules}`;
     case "visit":
-      return `${lead}A family is recording a baby's After Visit Summary from a doctor's appointment. Pull out the type of visit, provider, date, findings, home instructions, medicine changes and the next appointment. ${opts.kind ? `The family says this was a ${opts.kind} visit. ` : ""}${rules}`;
+      return `${lead}A family is recording ${person.a}'s After Visit Summary from a doctor's appointment. Pull out the type of visit, provider, date, findings, home instructions, medicine changes and the next appointment. ${opts.kind ? `The family says this was a ${opts.kind} visit. ` : ""}${rules}`;
   }
 }
 

@@ -4,6 +4,7 @@ import { CopyButton } from "@/components/copy-button";
 import { canView } from "@/lib/access";
 import { todayIn } from "@/lib/dates";
 import { safeNext } from "@/lib/errors";
+import { journeyConfig } from "@/lib/journeys";
 import { getFamily } from "@/lib/session";
 import { sheetAsText } from "@/lib/visit-sheet";
 import { loadVisitSheet } from "@/lib/visit-sheet-data";
@@ -22,6 +23,7 @@ export default async function VisitSheetPage({ params, searchParams }: PageProps
     familyId: family.id,
     childId: child.id,
     childName: child.name,
+    journey: journeyConfig(child.journey),
     visit,
     today: todayIn(family.time_zone),
     unit: family.feed_unit,

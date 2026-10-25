@@ -47,7 +47,7 @@ export const getFamily = cache(async (familyId: string): Promise<FamilyContext> 
   const supabase = await createClient();
   const [family, children, me] = await Promise.all([
     supabase.from("families").select("id, name, feed_unit, encouragement, time_zone").eq("id", familyId).maybeSingle(),
-    supabase.from("children").select("id, family_id, name, birth_date, photo_path").eq("family_id", familyId).order("created_at"),
+    supabase.from("children").select("id, family_id, name, birth_date, photo_path, journey").eq("family_id", familyId).order("created_at"),
     supabase.from("family_members").select("*").eq("family_id", familyId).eq("user_id", user.id).maybeSingle(),
   ]);
   if (!family.data || !me.data) notFound();

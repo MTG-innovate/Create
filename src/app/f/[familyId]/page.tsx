@@ -23,6 +23,7 @@ import { loadWeighIns, loadWins } from "@/lib/journey-data";
 import { MOMENTS, newestFirst, summarizeDay, type MomentType } from "@/lib/moments";
 import { lastMeals, loadMoments, namesFor } from "@/lib/moments-data";
 import { photoUrls } from "@/lib/photos";
+import { journeyConfig } from "@/lib/journeys";
 import { getFamily } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { endingSoon } from "@/lib/visits";
@@ -115,6 +116,7 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
                   </Link>
                 ) : null}
                 <DayTiles
+                  tiles={journeyConfig(child.journey).dayTiles}
                   summary={summarizeDay(mine, today, family.feed_unit, lastMeal)}
                   unit={family.feed_unit}
                   childName={child.name}
@@ -178,7 +180,7 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
 
       {caregiver ? <MomentForYou today={today} name={allNames} /> : null}
 
-      <AddMenu groups={addMenuGroups({ familyId: family.id, me, childName: first.name, childId: first.id, date: today, next: here })} />
+      <AddMenu groups={addMenuGroups({ familyId: family.id, me, childName: first.name, childId: first.id, journey: first.journey, date: today, next: here })} />
       <LiveRefresh familyId={family.id} tables={["visits", "visit_series", "moments", "wins", "practice_checks", "practice_items", "children", "families", "questions"]} />
     </>
   );

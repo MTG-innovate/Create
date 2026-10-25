@@ -1,3 +1,4 @@
+import type { CareJourney } from "./journeys";
 import type { CareArea, Role } from "./access";
 
 // Row shapes for the step 1 tables, matching supabase/migrations. Replace with
@@ -17,6 +18,7 @@ export type Child = {
   name: string;
   birth_date: string | null;
   photo_path: string | null;
+  journey: CareJourney;
 };
 
 export type Member = {

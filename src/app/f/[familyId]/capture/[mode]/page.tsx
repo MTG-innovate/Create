@@ -5,6 +5,7 @@ import { claudeReady } from "@/lib/claude";
 import { todayIn } from "@/lib/dates";
 import { safeNext } from "@/lib/errors";
 import { suggestions } from "@/lib/moments-data";
+import { visitKindsFor } from "@/lib/journeys";
 import { getFamily } from "@/lib/session";
 import { teamNames } from "@/lib/visits-data";
 import { CaptureFlow } from "../capture-flow";
@@ -24,6 +25,7 @@ export default async function CapturePage({ params, searchParams }: PageProps<"/
         familyId={family.id}
         mode={mode}
         kids={children.map((c) => ({ id: c.id, name: c.name }))}
+        kinds={visitKindsFor(children.map((c) => c.journey))}
         childId={child.id}
         unit={family.feed_unit}
         today={todayIn(family.time_zone)}

@@ -4,7 +4,7 @@ import { startTransition, useActionState, useState } from "react";
 import { CAPTURE, typedDraft, type CaptureMode, type NurseDraft, type VisitDraft } from "@/lib/capture";
 import type { Unit } from "@/lib/moments";
 import { shrinkPhoto } from "@/lib/shrink-photo";
-import type { Visit } from "@/lib/visits";
+import type { Visit, VisitKind } from "@/lib/visits";
 import { MomentForm } from "../diary/moment-form";
 import { VisitForm } from "../visits/visit-form";
 import { sortCapture, type CaptureState } from "./actions";
@@ -13,6 +13,7 @@ type Props = {
   familyId: string;
   mode: CaptureMode;
   kids: { id: string; name: string }[];
+  kinds: readonly VisitKind[];
   childId: string;
   unit: Unit;
   today: string;
@@ -31,7 +32,7 @@ type Review = { by: "claude" | "you"; nurse?: NurseDraft; visit?: VisitDraft; ma
  * until the person taps Save on that form.
  */
 export function CaptureFlow(props: Props) {
-  const { familyId, mode, kids, childId, unit, today, now, next, claude, team, suggest } = props;
+  const { familyId, mode, kids, kinds, childId, unit, today, now, next, claude, team, suggest } = props;
   const C = CAPTURE[mode];
   const [state, sort, sorting] = useActionState<CaptureState, FormData>(sortCapture, {});
   const [text, setText] = useState("");
@@ -88,6 +89,7 @@ export function CaptureFlow(props: Props) {
             visit={review.match ?? null}
             inSeries={Boolean(review.match?.series_id)}
             kids={kids}
+            kinds={kinds}
             team={team}
             canEdit
             defaultDate={review.visit.date}

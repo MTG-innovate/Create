@@ -136,6 +136,14 @@ select cron.schedule('little-steps-reminders', '*/5 * * * *', $$
 $$);
 ```
 
+Care journeys (`src/lib/journeys.ts`) are the start of JOSIA Care: each person
+receiving care follows one journey (`children.journey`), which decides the Home
+tiles, the diary kinds, the visit types, the visit sheet and how AI capture
+describes the person. Only Little Steps is built so far, and everyone is in it;
+its settings are exactly what the app did before, and a test keeps them so.
+Everyday Progress and Care Together come later. Risky migrations come with an
+undo script in `supabase/rollbacks`, which the database tests run.
+
 `test:db:local` uses `tests/db/supabase-shim.sql` to stand in for Supabase's
 `auth` and `storage` schemas. CI runs the database tests against real Supabase.
 
