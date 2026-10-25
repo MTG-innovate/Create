@@ -17,8 +17,16 @@ export async function signIn(browser: Browser, email: string): Promise<Page> {
   const since = Date.now();
   await page.goto("/sign-in");
   await page.getByLabel("Your email").fill(email);
-  await page.getByRole("button", { name: "Email me a sign-in link" }).click();
-  await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible();
+  // Auth sends one link per address a second; signing the same person in twice
+  // in a row can get "Too many tries", so wait and ask again, as a person would.
+  for (let attempt = 1; ; attempt++) {
+    await page.getByRole("button", { name: "Email me a sign-in link" }).click();
+    const sent = page.getByRole("heading", { name: "Check your email" });
+    await expect(sent.or(page.getByText("Too many tries"))).toBeVisible();
+    if (await sent.isVisible()) break;
+    if (attempt === 3) await expect(sent).toBeVisible();
+    await page.waitForTimeout(2000);
+  }
   await page.goto(await signInLink(email, since));
   await expect(page).toHaveURL(/\/f\/[0-9a-f-]{36}$/);
   return page;

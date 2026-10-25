@@ -40,8 +40,11 @@ export function startMockClaude(): Promise<Server> {
     req.on("end", () => {
       const schema = JSON.stringify(JSON.parse(body || "{}").output_config ?? {});
       const mode = schema.includes("medChanges") ? "visit" : schema.includes("intake") ? "nurse" : "therapy";
-      const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
-      const reply = { ...REPLIES[mode], ...("date" in REPLIES[mode] ? { date: today } : {}) };
+      // The nurse writes today; a visit summary comes the day after the visit,
+      // which keeps today's week as the other tests expect it.
+      const day = (offset: number) =>
+        new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date(Date.now() + offset * 86_400_000));
+      const reply = { ...REPLIES[mode], ...("date" in REPLIES[mode] ? { date: day(mode === "visit" ? -1 : 0) } : {}) };
       res.writeHead(200, { "content-type": "application/json", "request-id": "req_mock" });
       res.end(
         JSON.stringify({
