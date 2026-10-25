@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./family.module.css";
 
-// The prototype's bottom tab bar. Diary, Journey and Helpers join as they are built.
+// The prototype's bottom tab bar. Journey and Helpers join as they are built.
 const TABS = [
   { path: "", label: "Home", icon: <path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /> },
   {
@@ -14,6 +14,16 @@ const TABS = [
       <>
         <rect x="3" y="5" width="18" height="16" rx="3" />
         <path d="M3 10h18M8 3v4M16 3v4" />
+      </>
+    ),
+  },
+  {
+    path: "/diary",
+    label: "Diary",
+    icon: (
+      <>
+        <path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z" />
+        <path d="M5 17a3 3 0 0 1 3-3h11" />
       </>
     ),
   },

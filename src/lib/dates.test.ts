@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDays, ageText, dayLabel, daysBetween, fmtTime, greeting, hourIn, isDay, todayIn } from "./dates";
+import { addDays, ageText, dayLabel, daysBetween, fmtTime, greeting, hourIn, isDay, minutesSince, todayIn } from "./dates";
 
 describe("ageText", () => {
   const on = (s: string) => new Date(`${s}T12:00:00`);
@@ -61,5 +61,14 @@ describe("calendar days", () => {
     expect(dayLabel("2026-03-10", "2026-03-10")).toBe("Today");
     expect(dayLabel("2026-03-11", "2026-03-10")).toBe("Tomorrow");
     expect(dayLabel("2026-03-12", "2026-03-10")).toBe("Thursday, March 12");
+  });
+});
+
+describe("minutesSince", () => {
+  it("counts in the family's time zone, across midnight", () => {
+    const now = new Date("2026-07-02T04:30:00Z"); // 12:30 AM on July 2 in New York
+    expect(minutesSince("2026-07-01", "23:45:00", "America/New_York", now)).toBe(45);
+    expect(minutesSince("2026-07-02", "00:10", "America/New_York", now)).toBe(20);
+    expect(minutesSince("2026-07-02", null, "America/New_York", now)).toBeNull();
   });
 });

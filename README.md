@@ -4,10 +4,10 @@ One warm, shared place for families caring for a baby or toddler who came home
 from the NICU. See `docs/BUILD_BRIEF.pdf` for the product and
 `docs/little-steps-prototype.html` for every screen, word and behavior.
 
-**Build status:** step 2 of 9. Done: data model, sign in, families,
+**Build status:** step 3 of 9. Done: data model, sign in, families,
 invitations, roles and family separation (step 1); visits with true weekly
-recurrence and the Home week view, updating live for everyone in the family
-(step 2).
+recurrence and the Home week view (step 2); the diary and the Home tiles
+(step 3). Visits and diary moments update live for everyone in the family.
 
 ## Stack
 
@@ -72,6 +72,11 @@ Weekly visits are one rule in `visit_series` (start date, every N weeks, end
 date). Dates are worked out from it (`src/lib/visits.ts`); a row in `visits`
 exists for a series date only when it has its own notes, a new day or time, or
 was cancelled.
+
+Diary moments share one table, `moments`, with a `type` and the fields for that
+type in `details`. The kinds, their fields and words come from the prototype's
+`LOG` config and live in `src/lib/moments.ts`, which also checks submitted
+values and works out the night feed total.
 
 `test:db:local` uses `tests/db/supabase-shim.sql` to stand in for Supabase's
 `auth` and `storage` schemas. CI runs the database tests against real Supabase.

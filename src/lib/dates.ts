@@ -70,3 +70,12 @@ export function dayLabel(day: string, today: string): string {
   if (diff === -1) return "Yesterday";
   return fmtDay(day, { weekday: "long", month: "long", day: "numeric" });
 }
+
+/** Minutes from a family-local day and time until now, in that family's time zone. */
+export function minutesSince(day: string, time: string | null, timeZone: string, now: Date = new Date()): number | null {
+  if (!time) return null;
+  const parts = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "numeric", hourCycle: "h23", timeZone }).formatToParts(now);
+  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value);
+  const [h, m] = time.split(":").map(Number);
+  return daysBetween(day, todayIn(timeZone, now)) * 1440 + get("hour") * 60 + get("minute") - (h * 60 + m);
+}
