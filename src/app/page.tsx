@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { LegalLinks } from "@/components/legal-links";
 import { getMyFamilies, getUser } from "@/lib/session";
 
 export default async function Start() {
@@ -27,6 +28,7 @@ export default async function Start() {
           JOSIA Care helps your family stay organized. It is not medical advice. Follow your care team, and call 911
           in an emergency.
         </p>
+        <LegalLinks />
       </div>
     </main>
   );

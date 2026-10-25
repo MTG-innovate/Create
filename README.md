@@ -7,7 +7,7 @@ baby or toddler who came home from the NICU. See `docs/BUILD_BRIEF.pdf` for the
 product and `docs/little-steps-prototype.html` for every Little Steps screen,
 word and behavior.
 
-**Build status:** step 8 of 9. Done: data model, sign in, families,
+**Build status:** step 9 of 9, ready for the pilot; Stripe subscriptions come after it. Done: data model, sign in, families,
 invitations, roles and family separation (step 1); visits with true weekly
 recurrence and the Home week view (step 2); the diary and the Home tiles
 (step 3); the journey, with the growth chart and wins (step 4); helpers,
@@ -19,8 +19,11 @@ night feed, and the app can be added to the home screen (step 8); the JOSIA
 Care name, Care Circles and care journeys, with Little Steps as the first; and
 the everyday essentials for a baby's life: corrected age, medicine times with a
 "Medicines today" checklist, an emergency card, a pumping log, and equipment and
-supplies with reorder dates. Everything updates live for everyone in the Care
-Circle.
+supplies with reorder dates; and ready for the pilot (step 9): invite-only
+sign-up with pilot codes, a Getting started checklist for a new owner, private
+feedback to the JOSIA Care team, plain privacy and terms pages, and guides for
+putting the app online (`docs/DEPLOY.md`) and running the pilot
+(`docs/PILOT.md`). Everything updates live for everyone in the Care Circle.
 
 ## Stack
 
@@ -59,6 +62,10 @@ names. The database enforces separation, not the app code. `supabase/migrations`
 - The app has no service key. Every query runs as the signed-in person. The
   one exception is the reminder sender, whose secret lets the database hand
   over only what reminders need (see below).
+- Pilot codes and feedback live in the private schema. No one using the app
+  can read them, owners included; the operator reads them in Supabase. Only a
+  hash of each pilot code is stored, and sign-up is open until the operator
+  turns on invite only.
 - Reminder settings and push addresses are personal: each person sees only
   their own phones, and the audit trail never copies a push address.
 

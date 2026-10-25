@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CopyButton } from "@/components/copy-button";
+import { LegalLinks } from "@/components/legal-links";
 import { LiveRefresh } from "@/components/live-refresh";
 import { canEdit, canView } from "@/lib/access";
 import { fmtDay, fmtTime, todayIn } from "@/lib/dates";
@@ -263,11 +264,21 @@ export default async function HelpersPage({ params }: PageProps<"/f/[familyId]/h
           </span>
           <span aria-hidden="true">›</span>
         </Link>
+        <Link className="row" href={`/f/${family.id}/feedback?from=${encodeURIComponent(`/f/${family.id}/helpers`)}`} style={{ textDecoration: "none", color: "var(--ink)" }}>
+          <span className="main">
+            <span className="title" style={{ display: "block" }}>
+              Send us feedback
+            </span>
+            <span className="sub">Tell the JOSIA Care team what helps and what gets in the way</span>
+          </span>
+          <span aria-hidden="true">›</span>
+        </Link>
       </section>
 
       <p className="muted small" style={{ textAlign: "center" }}>
         JOSIA Care helps everyone in the Care Circle stay organized. It is not medical advice. Follow your care team, and call 911 in an emergency.
       </p>
+      <LegalLinks />
       <LiveRefresh familyId={family.id} tables={["team_contacts", "practice_items", "medicines", "supplies"]} />
     </>
   );

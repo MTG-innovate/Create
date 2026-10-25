@@ -110,3 +110,9 @@ fieldset.field { border: 0; padding: 0; margin: 0; }
   body { background: #fff; color: #000; }
   nav, header, [aria-label="Add a moment"] { display: none !important; }
 }
+
+/* Privacy and terms: plain reading text. */
+.prose ul { padding-left: 1.2em; margin: 8px 0 0; }
+.prose li { margin: 8px 0; line-height: 1.5; }
+.prose h2 { margin-top: 0; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
