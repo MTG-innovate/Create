@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./family.module.css";
 
-// The prototype's bottom tab bar. Helpers joins when it is built; People stands in for now.
+// The prototype's bottom tab bar. People and Settings are reached from Helpers.
 const TABS = [
   { path: "", label: "Home", icon: <path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /> },
   {
@@ -28,7 +28,7 @@ const TABS = [
     ),
   },
   { path: "/journey", label: "Journey", icon: <path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" /> },
-  { path: "/people", label: "People", icon: <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /> },
+  { path: "/helpers", also: ["/people", "/settings"], label: "Helpers", icon: <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /> },
 ];
 
 export function Tabs({ familyId }: { familyId: string }) {
@@ -36,7 +36,9 @@ export function Tabs({ familyId }: { familyId: string }) {
   const base = `/f/${familyId}`;
   const current = TABS.slice()
     .reverse()
-    .find((t) => (t.path ? pathname.startsWith(base + t.path) : pathname === base));
+    .find((t) =>
+      t.path ? [t.path, ...(("also" in t && t.also) || [])].some((p) => pathname.startsWith(base + p)) : pathname === base,
+    );
 
   return (
     <nav className={styles.tabs} aria-label="Sections">

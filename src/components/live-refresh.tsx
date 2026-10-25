@@ -25,8 +25,14 @@ export function LiveRefresh({ familyId, tables }: { familyId: string; tables: st
     };
     const channel = supabase.channel(`family-${familyId}-${key}`);
     for (const table of key.split(",")) {
-      channel.on("postgres_changes", { event: "*", schema: "public", table, filter: `family_id=eq.${familyId}` }, refresh);
+      // Every table names its family in family_id, except families itself (id).
+      const column = table === "families" ? "id" : "family_id";
+      channel.on("postgres_changes", { event: "*", schema: "public", table, filter: `${column}=eq.${familyId}` }, refresh);
     }
+    // Realtime reports a rejected subscription here, after the channel itself has joined.
+    channel.on("system", {}, (message: { status?: string; message?: string }) => {
+      if (message.status && message.status !== "ok") console.warn(`Live updates: ${message.message ?? message.status}`);
+    });
 
     let stopped = false;
     // Realtime checks row level security as the signed-in person, so it needs

@@ -1,0 +1,17 @@
+/* From the prototype: .encourage, .moment, .check, the helpers' notes */
+.encourage { flex-direction: row; align-items: flex-start; gap: 12px; padding: 16px 18px; border-radius: 22px; background: linear-gradient(135deg, var(--sky), var(--lav)); }
+.sun { flex: none; width: 36px; height: 36px; color: var(--accent-text); }
+.quote { margin: 0; font-family: var(--display); font-weight: 500; font-size: 1.15rem; line-height: 1.35; text-wrap: balance; }
+.ref { margin-top: 4px; font-size: .85rem; color: var(--muted); font-weight: 700; }
+
+.moment { padding: 18px; border-radius: 22px; background: var(--lav); gap: 6px; }
+.moment .big { font-family: var(--display); font-weight: 500; font-size: 1.15rem; }
+
+.check { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-top: 1px solid var(--line); cursor: pointer; min-height: 48px; }
+.check:first-child { border-top: 0; }
+.check input { width: 24px; height: 24px; margin: 1px 0 0; accent-color: var(--accent-text); flex: none; }
+.done .what { text-decoration: line-through; color: var(--muted); }
+
+.dot { flex: none; width: 14px; height: 14px; border-radius: 50%; margin-top: 4px; }
+.clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-top: 4px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.atHome { margin-top: 6px; font-size: .92rem; padding: 8px 10px; border-radius: 8px; background: var(--accent-soft); overflow-wrap: anywhere; display: block; }
