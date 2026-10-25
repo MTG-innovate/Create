@@ -8,7 +8,7 @@ export default async function SignInPage({ searchParams }: PageProps<"/sign-in">
     <main className="band">
       <div className="inner stack">
         <section>
-          <p className="eyebrow">Little Steps</p>
+          <p className="eyebrow">JOSIA Care</p>
           <h1>Welcome</h1>
         </section>
         {params.error ? (

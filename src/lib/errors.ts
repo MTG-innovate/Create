@@ -9,7 +9,7 @@ export function friendlyError(error: { code?: string; message?: string } | null 
   if (error.code === "42501" && !message.startsWith("permission denied") && !message.includes("row-level security")) {
     return message;
   }
-  if (error.code === "42501") return "You do not have permission to do that. Ask an owner of this family.";
+  if (error.code === "42501") return "You do not have permission to do that. Ask an owner of this Care Circle.";
   return "That did not save. Check your connection and try again.";
 }
 

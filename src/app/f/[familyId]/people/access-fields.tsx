@@ -23,13 +23,24 @@ type Props = {
 };
 
 /** Choose a role, and for helpers, exactly what they can see and change. */
-export function AccessFields({ idPrefix, role: initialRole = "family", helperLabel = "", view = [], edit = [] }: Props) {
+export function AccessFields({
+  idPrefix,
+  role: initialRole = "family",
+  helperLabel = "",
+  view = [],
+  edit = [],
+}: Props) {
   const [role, setRole] = useState<Role>(initialRole);
   const [label, setLabel] = useState(helperLabel ?? "");
   const [areas, setAreas] = useState(() => normalizeAreas(view, edit));
 
   const toggle = (kind: "view" | "edit", area: CareArea, on: boolean) => {
-    const nextView = kind === "view" ? (on ? [...areas.view, area] : areas.view.filter((a) => a !== area)) : areas.view;
+    const nextView =
+      kind === "view"
+        ? on
+          ? [...areas.view, area]
+          : areas.view.filter((a) => a !== area)
+        : areas.view;
     const nextEdit =
       kind === "edit"
         ? on
@@ -47,7 +58,13 @@ export function AccessFields({ idPrefix, role: initialRole = "family", helperLab
         <legend>What they can do</legend>
         {ROLES.map((r) => (
           <label key={r} className="choice">
-            <input type="radio" name="role" value={r} checked={role === r} onChange={() => setRole(r)} />
+            <input
+              type="radio"
+              name="role"
+              value={r}
+              checked={role === r}
+              onChange={() => setRole(r)}
+            />
             <span>
               <b>{ROLE_LABEL[r]}</b>
               <br />
@@ -79,7 +96,9 @@ export function AccessFields({ idPrefix, role: initialRole = "family", helperLab
             </div>
           </div>
           <div className="field">
-            <label htmlFor={`${idPrefix}-label`}>Their role in the care team</label>
+            <label htmlFor={`${idPrefix}-label`}>
+              Their role in the care team
+            </label>
             <input
               id={`${idPrefix}-label`}
               name="helperLabel"
@@ -102,24 +121,28 @@ export function AccessFields({ idPrefix, role: initialRole = "family", helperLab
                 <tr key={a}>
                   <th scope="row">{AREA_LABEL[a]}</th>
                   <td>
-                    <input
-                      type="checkbox"
-                      name="view"
-                      value={a}
-                      aria-label={`See ${AREA_LABEL[a]}`}
-                      checked={areas.view.includes(a)}
-                      onChange={(e) => toggle("view", a, e.target.checked)}
-                    />
+                    <label className={styles.tick}>
+                      <input
+                        type="checkbox"
+                        name="view"
+                        value={a}
+                        aria-label={`See ${AREA_LABEL[a]}`}
+                        checked={areas.view.includes(a)}
+                        onChange={(e) => toggle("view", a, e.target.checked)}
+                      />
+                    </label>
                   </td>
                   <td>
-                    <input
-                      type="checkbox"
-                      name="edit"
-                      value={a}
-                      aria-label={`Add and change ${AREA_LABEL[a]}`}
-                      checked={areas.edit.includes(a)}
-                      onChange={(e) => toggle("edit", a, e.target.checked)}
-                    />
+                    <label className={styles.tick}>
+                      <input
+                        type="checkbox"
+                        name="edit"
+                        value={a}
+                        aria-label={`Add and change ${AREA_LABEL[a]}`}
+                        checked={areas.edit.includes(a)}
+                        onChange={(e) => toggle("edit", a, e.target.checked)}
+                      />
+                    </label>
                   </td>
                 </tr>
               ))}

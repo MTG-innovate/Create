@@ -53,7 +53,7 @@ export function BrightSpots({
                 {pending ? "Saving…" : "Save"}
               </button>
             </div>
-            <p role="status" className="small muted" style={{ minHeight: "1.2em" }}>
+            <p role="status" className="small muted">
               {state.error ?? state.done ?? ""}
             </p>
           </form>

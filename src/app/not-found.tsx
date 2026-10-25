@@ -6,7 +6,7 @@ export default function NotFound() {
       <div className="inner stack">
         <section className="card pad">
           <h1>We could not find that page</h1>
-          <p className="muted">It may belong to a family you are not part of, or the link may be old.</p>
+          <p className="muted">It may belong to a Care Circle you are not part of, or the link may be old.</p>
           <div className="actions">
             <Link className="btn primary" href="/">
               Go home

@@ -87,7 +87,7 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
       ) : null}
 
       <section className="card pad">
-        <h2>For the whole family</h2>
+        <h2>For the whole Care Circle</h2>
         {editable ? (
           <ActionForm action={saveFamilySettings} submit="Save" pendingLabel="Saving…">
             <input type="hidden" name="familyId" value={family.id} />
@@ -144,8 +144,8 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
 
       {me.role === "owner" ? (
         <section className="card pad">
-          <h2>Your family&rsquo;s data</h2>
-          <p className="muted">Download everything the family has added, as a file you can keep. Photos are not included.</p>
+          <h2>Your Care Circle&rsquo;s data</h2>
+          <p className="muted">Download everything added to this Care Circle, as a file you can keep. Photos are not included.</p>
           <div className="actions">
             <a className="btn small" href={`/f/${family.id}/export`} download>
               Download everything

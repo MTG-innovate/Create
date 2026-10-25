@@ -200,7 +200,7 @@ export default async function HelpersPage({ params }: PageProps<"/f/[familyId]/h
       </section>
 
       <p className="muted small" style={{ textAlign: "center" }}>
-        Little Steps helps the family stay organized. It is not medical advice. Follow your care team, and call 911 in an emergency.
+        JOSIA Care helps everyone in the Care Circle stay organized. It is not medical advice. Follow your care team, and call 911 in an emergency.
       </p>
       <LiveRefresh familyId={family.id} tables={["team_contacts", "practice_items", "medicines"]} />
     </>

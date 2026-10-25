@@ -57,7 +57,7 @@ export default async function VisitSheetPage({ params, searchParams }: PageProps
         </Link>
       </div>
       {me.role === "helper" ? (
-        <p className={`muted small ${styles.noPrint}`}>This sheet only includes the parts of the tracker the family has shared with you.</p>
+        <p className={`muted small ${styles.noPrint}`}>This sheet only includes the parts of the tracker shared with you.</p>
       ) : null}
     </>
   );

@@ -13,7 +13,7 @@ export default async function InvitePage({ params }: PageProps<"/invite/[token]"
   if (!user) {
     return (
       <Shell title="You have been invited">
-        <p>Someone in your family invited you to Little Steps. Sign in with the email address the invitation was sent to.</p>
+        <p>Someone invited you to their Care Circle on JOSIA Care. Sign in with the email address the invitation was sent to.</p>
         <div className="actions">
           <Link className="btn primary" href={`/sign-in?next=${encodeURIComponent(`/invite/${token}`)}`}>
             Sign in to join
@@ -69,7 +69,7 @@ function Shell({ title, children }: { title: string; children: React.ReactNode }
     <main className="band">
       <div className="inner stack">
         <section className="card pad">
-          <p className="eyebrow">Little Steps</p>
+          <p className="eyebrow">JOSIA Care</p>
           <h1>{title}</h1>
           {children}
         </section>

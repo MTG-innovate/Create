@@ -149,7 +149,7 @@ export function CaptureFlow(props: Props) {
           ? "Reading it now. This can take up to a minute."
           : claude
             ? C.hint(child.name)
-            : "Claude is not set up for Little Steps yet, so type it in and check it before saving."}
+            : "Claude is not set up for JOSIA Care yet, so type it in and check it before saving."}
       </p>
       {state.error && state !== dismissed ? (
         <p className="banner" role="alert">

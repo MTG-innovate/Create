@@ -105,18 +105,18 @@ export function Reminders({ familyId, childName, devices, vapidKey, visits, nigh
     <section className="card pad">
       <h2>Reminders on this phone</h2>
       {!vapidKey ? (
-        <p className="muted">Reminders are not set up for Little Steps yet.</p>
+        <p className="muted">Reminders are not set up for JOSIA Care yet.</p>
       ) : phone === "checking" ? (
         <p className="muted">Checking this phone…</p>
       ) : phone === "install" ? (
         <p className="muted">
-          On iPhone, add Little Steps to your Home Screen first: tap the Share button, then &ldquo;Add to Home Screen&rdquo;. Open it from
+          On iPhone, add JOSIA Care to your Home Screen first: tap the Share button, then &ldquo;Add to Home Screen&rdquo;. Open it from
           there and come back here to turn on reminders.
         </p>
       ) : phone === "unsupported" ? (
-        <p className="muted">This browser cannot show reminders. Try Little Steps on your phone, added to the Home Screen.</p>
+        <p className="muted">This browser cannot show reminders. Try JOSIA Care on your phone, added to the Home Screen.</p>
       ) : phone === "blocked" ? (
-        <p className="muted">Notifications are turned off for Little Steps in this phone&rsquo;s settings. Turn them on there, then come back.</p>
+        <p className="muted">Notifications are turned off for JOSIA Care in this phone&rsquo;s settings. Turn them on there, then come back.</p>
       ) : phone === "off" || !mine ? (
         <>
           <p className="muted">

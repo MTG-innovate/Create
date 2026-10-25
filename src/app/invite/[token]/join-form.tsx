@@ -9,7 +9,7 @@ export function JoinForm({ token, yourName }: { token: string; yourName: string 
     <form action={action} className="fields">
       <input type="hidden" name="token" value={token} />
       <div className="field">
-        <label htmlFor="yourName">Your name, as the family will see it</label>
+        <label htmlFor="yourName">Your name, as the Care Circle will see it</label>
         <input id="yourName" name="yourName" defaultValue={yourName} maxLength={80} autoComplete="name" required />
       </div>
       {state.error ? (

@@ -21,7 +21,7 @@ export default async function DiaryPage({ params, searchParams }: PageProps<"/f/
     return (
       <section className="card pad">
         <h1>Diary</h1>
-        <p className="muted">The family has not shared the diary with you. Ask an owner if you need to see it.</p>
+        <p className="muted">The diary has not been shared with you. Ask an owner if you need to see it.</p>
       </section>
     );
   }

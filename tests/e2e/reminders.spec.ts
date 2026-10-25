@@ -7,7 +7,7 @@ import { shots, signIn } from "./helpers";
 
 test("Settings offers reminders on this phone", async ({ browser }) => {
   const parent = await signIn(browser, "parent@example.com");
-  // As if the parent had already allowed notifications for Little Steps.
+  // As if the parent had already allowed notifications for JOSIA Care.
   await parent.context().grantPermissions(["notifications"]);
   await parent.goto(parent.url() + "/settings");
   const section = parent.locator("section", { has: parent.getByRole("heading", { name: "Reminders on this phone" }) });
@@ -15,15 +15,15 @@ test("Settings offers reminders on this phone", async ({ browser }) => {
   // What it says depends on the phone: the test browser looks like an iPhone,
   // may have no push service and may block notifications, so any of these is right.
   await expect(section).toContainText(
-    /Turn on reminders|add Little Steps to your Home Screen first|This browser cannot show reminders|Notifications are turned off/,
+    /Turn on reminders|add JOSIA Care to your Home Screen first|This browser cannot show reminders|Notifications are turned off/,
   );
   console.log(`Reminders section: ${await section.innerText()}`);
   await section.screenshot({ path: `${shots}/17-reminders.png` });
 });
 
-test("Little Steps can be added to a phone's home screen", async ({ request }) => {
+test("JOSIA Care can be added to a phone's home screen", async ({ request }) => {
   const manifest = await (await request.get("/manifest.webmanifest")).json();
-  expect(manifest).toMatchObject({ name: "Little Steps", display: "standalone", start_url: "/" });
+  expect(manifest).toMatchObject({ name: "JOSIA Care", display: "standalone", start_url: "/" });
   expect((await request.get("/sw.js")).ok()).toBe(true);
   expect((await request.get("/icon-512.png")).ok()).toBe(true);
 });

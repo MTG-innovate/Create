@@ -6,7 +6,7 @@ import { shots, signIn } from "./helpers";
 
 test("helpers, a daily practice item and a medicine; grandma sees who did today's practice", async ({ browser }) => {
   const parent = await signIn(browser, "parent@example.com");
-  await parent.getByRole("link", { name: "Helpers", exact: true }).click();
+  await parent.getByRole("link", { name: "Care Circle", exact: true }).click();
   await expect(parent.getByRole("heading", { name: "Josiah’s helpers" })).toBeVisible();
 
   await parent.getByRole("link", { name: "+ Helper" }).click();
@@ -43,7 +43,7 @@ test("helpers, a daily practice item and a medicine; grandma sees who did today'
 
 test("a helper who can only see medicines cannot change them", async ({ browser }) => {
   const nurse = await signIn(browser, "nurse@example.com");
-  await nurse.getByRole("link", { name: "Helpers", exact: true }).click();
+  await nurse.getByRole("link", { name: "Care Circle", exact: true }).click();
   await expect(nurse.getByRole("heading", { name: "Medicines" })).toBeVisible();
   await expect(nurse.getByRole("link", { name: "+ Medicine" })).toHaveCount(0);
   await expect(nurse.getByRole("link", { name: "+ Helper" })).toHaveCount(0);
@@ -70,7 +70,7 @@ test("settings: gentle words, Josiah's photo, and downloading everything", async
 
   const [download] = await Promise.all([parent.waitForEvent("download"), parent.getByRole("link", { name: "Download everything" }).click()]);
   const data = JSON.parse(await readFile((await download.path())!, "utf8"));
-  expect(data.family.name).toBe("Josiah's family");
+  expect(data.family.name).toBe("Josiah's Care Circle");
   expect(data.team_contacts.map((t: { name: string }) => t.name)).toContain("Dr. Example");
   expect(data.children[0].photo_path).toMatch(/\.jpg$/);
 

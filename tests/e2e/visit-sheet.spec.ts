@@ -22,7 +22,7 @@ test("a question for cardiology shows on Home and on the cardiology visit sheet,
   await parent.getByRole("button", { name: "Save" }).click();
 
   // A medicine, so the sheet has one to list.
-  await parent.getByRole("link", { name: "Helpers", exact: true }).click();
+  await parent.getByRole("link", { name: "Care Circle", exact: true }).click();
   await parent.getByRole("link", { name: "+ Medicine" }).click();
   await parent.getByLabel("Medicine *").fill("Furosemide");
   await parent.getByLabel("Dose").fill("1 ml");

@@ -42,7 +42,7 @@ export async function sortCapture(_: CaptureState, form: FormData): Promise<Capt
   if (!isCaptureMode(mode)) return { error: "Something went wrong. Please try again." };
   const { family, children, me } = await getFamily(familyId);
   if (!canEdit(me, CAPTURE[mode].area)) return { error: "You can see this, but not add to it." };
-  if (!claudeReady()) return { error: "Claude is not set up for Little Steps yet, so type it in instead." };
+  if (!claudeReady()) return { error: "Claude is not set up for JOSIA Care yet, so type it in instead." };
 
   const text = String(form.get("text") ?? "").trim().slice(0, MAX_TEXT);
   const file = form.get("photo");

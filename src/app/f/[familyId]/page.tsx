@@ -221,7 +221,7 @@ function NurseSection(props: {
         <div className="card">
           <p className="calm">
             {props.childName}&rsquo;s nurse is here today{props.nurseVisitTime ? ` from ${fmtTime(props.nurseVisitTime)}` : ""}. When the
-            update comes in, add it here and the whole family will see it.
+            update comes in, add it here and everyone in the Care Circle will see it.
           </p>
         </div>
       )}

@@ -15,7 +15,7 @@ export default async function WelcomePage() {
     <main className="band">
       <div className="inner stack">
         <section>
-          <p className="eyebrow">Welcome to Little Steps</p>
+          <p className="eyebrow">Welcome to JOSIA Care</p>
           <h1>Who are we caring for?</h1>
           <p className="muted">Start with your little one. You can add a brother or sister later.</p>
         </section>
