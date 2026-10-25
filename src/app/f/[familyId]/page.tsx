@@ -5,11 +5,15 @@ import { DayTiles, newMomentHref } from "@/components/diary/day-tiles";
 import diary from "@/components/diary/diary.module.css";
 import { NurseCard } from "@/components/diary/nurse-card";
 import { Bubble } from "@/components/icons";
+import { BrightSpots } from "@/components/journey/bright-spots";
+import journey from "@/components/journey/journey.module.css";
 import { LiveRefresh } from "@/components/live-refresh";
 import { SeriesPrompts } from "@/components/visits/series-prompt";
 import { WeekPlan } from "@/components/visits/week-plan";
 import { canEdit, canView } from "@/lib/access";
-import { addDays, ageText, daysBetween, fmtTime, greeting, hourIn, isDay, minutesSince, todayIn } from "@/lib/dates";
+import { addDays, ageText, daysBetween, fmtDay, fmtTime, greeting, hourIn, isDay, minutesSince, todayIn } from "@/lib/dates";
+import { upSince, weighIns } from "@/lib/journey";
+import { loadWeighIns, loadWins } from "@/lib/journey-data";
 import { MOMENTS, newestFirst, summarizeDay, type MomentType } from "@/lib/moments";
 import { lastMeals, loadMoments, namesFor } from "@/lib/moments-data";
 import { getFamily } from "@/lib/session";
@@ -39,6 +43,10 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
   const childNames = children.length > 1 ? new Map(children.map((c) => [c.id, c.name])) : null;
   const alone = me.role === "owner" && (await countMembers(family.id)) === 1;
   const first = children[0];
+  const growth = canView(me, "growth")
+    ? new Map(await Promise.all(children.map(async (c) => [c.id, upSince(weighIns(await loadWeighIns(family.id, c.id)), c.birth_date)] as const)))
+    : new Map();
+  const brightSpots = canView(me, "wins") ? await loadWins(family.id, first.id, 3) : null;
 
   return (
     <>
@@ -51,6 +59,7 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
             <p className="eyebrow">{greeting(hour)}</p>
             <h1 className={styles.heroName}>{child.name}</h1>
             {ageText(child.birth_date) ? <p className={styles.age}>{ageText(child.birth_date)}</p> : null}
+            <UpSince familyId={family.id} up={growth.get(child.id) ?? null} />
           </div>
         </section>
       ))}
@@ -105,6 +114,10 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
         />
       ) : null}
 
+      {brightSpots ? (
+        <BrightSpots familyId={family.id} childId={first.id} childName={first.name} wins={brightSpots} canAdd={canEdit(me, "wins")} />
+      ) : null}
+
       {alone ? (
         <section className="card pad">
           <h2>Bring in the people who help</h2>
@@ -120,7 +133,7 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
       ) : null}
 
       <AddMenu groups={addMenuGroups({ familyId: family.id, me, childName: first.name, childId: first.id, date: today, next: here })} />
-      <LiveRefresh familyId={family.id} tables={["visits", "visit_series", "moments"]} />
+      <LiveRefresh familyId={family.id} tables={["visits", "visit_series", "moments", "wins"]} />
     </>
   );
 }
@@ -165,6 +178,16 @@ function NurseSection(props: {
         </div>
       )}
     </section>
+  );
+}
+
+/** The hero's "Up 3 lb 4 oz since birth" badge, which opens the journey. */
+function UpSince({ familyId, up }: { familyId: string; up: ReturnType<typeof upSince> }) {
+  if (!up) return null;
+  return (
+    <Link className={journey.winPill} href={`/f/${familyId}/journey`}>
+      <span className={journey.starkey} aria-hidden="true" /> Up {up.gain} since {up.since === "birth" ? "birth" : fmtDay(up.since, { month: "short", day: "numeric" })}
+    </Link>
   );
 }
 
