@@ -55,6 +55,12 @@ jobs:
           # The end-to-end tests answer for Claude themselves (tests/e2e/mock-claude.ts).
           export ANTHROPIC_BASE_URL=http://127.0.0.1:54399
           export ANTHROPIC_API_KEY=e2e-placeholder
+          # Reminders: a throwaway key pair, and the secret the demo seed accepts.
+          keys=$(pnpm exec web-push generate-vapid-keys --json)
+          export NEXT_PUBLIC_VAPID_PUBLIC_KEY=$(echo "$keys" | node -pe 'JSON.parse(require("fs").readFileSync(0)).publicKey')
+          export VAPID_PRIVATE_KEY=$(echo "$keys" | node -pe 'JSON.parse(require("fs").readFileSync(0)).privateKey')
+          export VAPID_SUBJECT=mailto:ci@example.com
+          export REMINDER_SECRET=local-reminder-secret
           pnpm build
           nohup pnpm start -H 127.0.0.1 -p 3000 > next.log 2>&1 &
           for i in $(seq 1 60); do curl -sf http://127.0.0.1:3000/sign-in > /dev/null && break; sleep 1; done

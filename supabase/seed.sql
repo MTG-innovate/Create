@@ -41,3 +41,6 @@ insert into public.moments (family_id, child_id, type, date, time, details, note
 select c.family_id, c.id, 'weigh_in', '2025-04-12', '09:00', '{"lb": 4, "oz": 2, "length": 16.5}', 'Birth weight',
   '11111111-1111-4111-8111-111111111111'
 from public.children c where c.family_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+
+-- Local only: the reminder sender's secret is "local-reminder-secret" (see .env.example).
+insert into private.reminder_sender (secret_hash) values (sha256(convert_to('local-reminder-secret', 'UTF8')));

@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { ActionForm } from "@/components/action-form";
-import { canEdit } from "@/lib/access";
+import { canEdit, canView } from "@/lib/access";
 import { photoUrls } from "@/lib/photos";
 import { getFamily } from "@/lib/session";
+import { createClient } from "@/lib/supabase/server";
 import { addChild, deleteChildData, removePhoto, saveChild, saveFamilySettings } from "./actions";
 import { PhotoPicker } from "./photo-picker";
+import { Reminders, type MyDevice } from "./reminders";
 
 export default async function SettingsPage({ params, searchParams }: PageProps<"/f/[familyId]/settings">) {
   const { familyId } = await params;
@@ -13,6 +15,8 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
   // Settings change the family and the children, which owners and family can do.
   const editable = me.role === "owner" || me.role === "family";
   const photos = await photoUrls(children);
+  const remindable = canView(me, "visits") || canView(me, "diary");
+  const devices = remindable ? await myDevices(family.id) : [];
 
   return (
     <>
@@ -70,6 +74,17 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
           ) : null}
         </section>
       ))}
+
+      {remindable ? (
+        <Reminders
+          familyId={family.id}
+          childName={children[0]?.name ?? "your little one"}
+          devices={devices}
+          vapidKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || null}
+          visits={canView(me, "visits")}
+          nightFeed={canEdit(me, "diary")}
+        />
+      ) : null}
 
       <section className="card pad">
         <h2>For the whole family</h2>
@@ -158,4 +173,14 @@ export default async function SettingsPage({ params, searchParams }: PageProps<"
       ) : null}
     </>
   );
+}
+
+/** This person's phones with reminders on for this family. The database shows no one else's. */
+async function myDevices(familyId: string): Promise<MyDevice[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("push_devices")
+    .select("id, endpoint, visit_evening, visit_soon, night_feed, night_feed_at")
+    .eq("family_id", familyId);
+  return data ?? [];
 }
