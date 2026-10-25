@@ -8,6 +8,8 @@ const atkinson = Atkinson_Hyperlegible({ variable: "--font-atkinson", weight: ["
 export const metadata: Metadata = {
   title: "Little Steps",
   description: "One warm place for your little one's care, shared with everyone who helps.",
+  appleWebApp: { title: "Little Steps", statusBarStyle: "default" },
+  icons: { apple: "/apple-touch-icon.png" },
 };
 
 export const viewport: Viewport = {

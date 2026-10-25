@@ -4,14 +4,15 @@ One warm, shared place for families caring for a baby or toddler who came home
 from the NICU. See `docs/BUILD_BRIEF.pdf` for the product and
 `docs/little-steps-prototype.html` for every screen, word and behavior.
 
-**Build status:** step 7 of 9. Done: data model, sign in, families,
+**Build status:** step 8 of 9. Done: data model, sign in, families,
 invitations, roles and family separation (step 1); visits with true weekly
 recurrence and the Home week view (step 2); the diary and the Home tiles
 (step 3); the journey, with the growth chart and wins (step 4); helpers,
 practice at home, medicines, settings and the child's photo (step 5); questions to ask and the
 visit sheet, ready to show, print or copy (step 6); AI capture of a nurse
 text, a therapy handoff or a doctor visit summary, always checked by a person
-before it saves (step 7).
+before it saves (step 7); reminders on each person's phone for visits and the
+night feed, and Little Steps can be added to the home screen (step 8).
 Everything updates live for everyone in the family.
 
 ## Stack
@@ -46,7 +47,11 @@ The database enforces it, not the app code. `supabase/migrations` holds the rule
   point at a photo in that child's own folder.
 - The family owner can download all the family's records as one JSON file
   (Settings), and permanently delete a child's data, photos included.
-- The app has no service key. Every query runs as the signed-in person.
+- The app has no service key. Every query runs as the signed-in person. The
+  one exception is the reminder sender, whose secret lets the database hand
+  over only what reminders need (see below).
+- Reminder settings and push addresses are personal: each person sees only
+  their own phones, and the audit trail never copies a push address.
 
 `tests/db` proves all of this with invented families (the Riveras and the
 Okafors): one family cannot read, add to, change or delete anything of
@@ -108,6 +113,28 @@ AI capture (`src/lib/capture.ts`, `src/lib/claude.ts`) follows the brief's rules
   and never stored.
 - Without a key, the same screens offer "Type it in myself". The end-to-end
   tests use a stand-in for Claude (`tests/e2e/mock-claude.ts`).
+
+Reminders (`src/lib/reminders.ts`, `src/app/api/reminders/route.ts`) are turned
+on by each person, phone by phone, in Settings: the evening before a visit
+(from 7 PM), about an hour before, and the night feed at a time they pick until
+someone logs it. Reminders show the kind of visit and the time, never notes.
+On iPhone they work once Little Steps is added to the Home Screen.
+
+To send them, set the VAPID keys and `REMINDER_SECRET` (see `.env.example`),
+add the secret's hash to the database once:
+
+```sql
+insert into private.reminder_sender (secret_hash) values (sha256(convert_to('<REMINDER_SECRET>', 'UTF8')));
+```
+
+and have a scheduler call `/api/reminders` every five minutes with the header
+`Authorization: Bearer <REMINDER_SECRET>`. Supabase Cron can do it:
+
+```sql
+select cron.schedule('little-steps-reminders', '*/5 * * * *', $$
+  select net.http_get('https://<your app>/api/reminders', headers := jsonb_build_object('Authorization', 'Bearer <REMINDER_SECRET>'))
+$$);
+```
 
 `test:db:local` uses `tests/db/supabase-shim.sql` to stand in for Supabase's
 `auth` and `storage` schemas. CI runs the database tests against real Supabase.
