@@ -2,11 +2,11 @@ import { z } from "zod";
 import type { CareArea } from "./access";
 import { isDay } from "./dates";
 
-// The care team, practice at home and the medicine list, from the prototype's
-// CFG.team, CFG.plan and CFG.meds: one definition drives each form and the
-// checks on save.
+// The care team, practice at home, the medicine list and questions to ask,
+// from the prototype's CFG.team, CFG.plan, CFG.meds and CFG.questions: one
+// definition drives each form and the checks on save.
 
-export const RECORD_KINDS = ["team", "practice", "medicines"] as const;
+export const RECORD_KINDS = ["team", "practice", "medicines", "questions"] as const;
 export type RecordKind = (typeof RECORD_KINDS)[number];
 
 export const FREQUENCIES = ["Every day", "Several times a day", "A few times a week", "Weekly", "As needed"] as const;
@@ -79,6 +79,18 @@ export const RECORDS: Record<
       { key: "prescriber", label: "Prescribed by", kind: "text", suggest: "team" },
       { key: "pharmacy", label: "Pharmacy", kind: "text" },
       { key: "notes", label: "Notes", kind: "textarea", placeholder: "How to measure, side effects to watch" },
+    ],
+  },
+  questions: {
+    table: "questions",
+    area: "questions",
+    title: "Question",
+    perChild: true,
+    fields: () => [
+      { key: "text", label: "Question", kind: "textarea", required: true },
+      { key: "for_whom", label: "For", kind: "text", suggest: "team", placeholder: "Who to ask, or leave empty for anyone" },
+      { key: "done", label: "Asked and answered", kind: "checkbox", initial: false },
+      { key: "answer", label: "What they said", kind: "textarea" },
     ],
   },
 };

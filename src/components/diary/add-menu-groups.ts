@@ -24,5 +24,16 @@ export function addMenuGroups(opts: { familyId: string; me: Member; childName: s
           : []),
       ],
     },
+    {
+      title: "Good things",
+      items: [
+        ...(canEdit(me, "wins")
+          ? [{ label: "A win", icon: "win", color: "--accent", href: `/f/${familyId}/journey/wins/new?${new URLSearchParams({ child: childId, next })}` }]
+          : []),
+        ...(canEdit(me, "questions")
+          ? [{ label: "A question", icon: "question", color: "--sleep", href: `/f/${familyId}/helpers/questions/new?${new URLSearchParams({ child: childId, next })}` }]
+          : []),
+      ],
+    },
   ];
 }

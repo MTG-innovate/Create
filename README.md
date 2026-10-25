@@ -4,11 +4,12 @@ One warm, shared place for families caring for a baby or toddler who came home
 from the NICU. See `docs/BUILD_BRIEF.pdf` for the product and
 `docs/little-steps-prototype.html` for every screen, word and behavior.
 
-**Build status:** step 5 of 9. Done: data model, sign in, families,
+**Build status:** step 6 of 9. Done: data model, sign in, families,
 invitations, roles and family separation (step 1); visits with true weekly
 recurrence and the Home week view (step 2); the diary and the Home tiles
 (step 3); the journey, with the growth chart and wins (step 4); helpers,
-practice at home, medicines, settings and the child's photo (step 5).
+practice at home, medicines, settings and the child's photo (step 5); questions to ask and the
+visit sheet, ready to show, print or copy (step 6).
 Everything updates live for everyone in the family.
 
 ## Stack
@@ -87,6 +88,11 @@ values and works out the night feed total.
 The journey (`src/lib/journey.ts`) compares the child only to themself: weight
 over time with the gain since each weigh-in, and wins as stars along the chart.
 It never uses percentiles or growth standards, and a test keeps it that way.
+
+The visit sheet (`src/lib/visit-sheet.ts`) gathers what a helper should know
+before a visit: medicines, recent weight, meals and night feeds, what to keep an
+eye on, what other helpers said, practice at home and the questions meant for
+that helper. It only includes what the person opening it is allowed to see.
 
 `test:db:local` uses `tests/db/supabase-shim.sql` to stand in for Supabase's
 `auth` and `storage` schemas. CI runs the database tests against real Supabase.
