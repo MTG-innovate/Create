@@ -34,6 +34,7 @@ test("a meal and a diaper logged by a parent update grandma's tiles within secon
 test("a night feed's total is worked out from the pump rate and the times", async ({ browser }) => {
   const parent = await signIn(browser, "parent@example.com");
   await parent.getByRole("link", { name: "Diary", exact: true }).click();
+  await expect(parent.getByRole("heading", { name: "Josiah’s diary" })).toBeVisible();
   await parent.getByRole("button", { name: "Add a moment" }).click();
   await parent.getByRole("dialog").getByRole("link", { name: "Night feed" }).click();
   await parent.getByLabel("Started").fill("22:00");
