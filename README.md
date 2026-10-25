@@ -4,12 +4,14 @@ One warm, shared place for families caring for a baby or toddler who came home
 from the NICU. See `docs/BUILD_BRIEF.pdf` for the product and
 `docs/little-steps-prototype.html` for every screen, word and behavior.
 
-**Build status:** step 6 of 9. Done: data model, sign in, families,
+**Build status:** step 7 of 9. Done: data model, sign in, families,
 invitations, roles and family separation (step 1); visits with true weekly
 recurrence and the Home week view (step 2); the diary and the Home tiles
 (step 3); the journey, with the growth chart and wins (step 4); helpers,
 practice at home, medicines, settings and the child's photo (step 5); questions to ask and the
-visit sheet, ready to show, print or copy (step 6).
+visit sheet, ready to show, print or copy (step 6); AI capture of a nurse
+text, a therapy handoff or a doctor visit summary, always checked by a person
+before it saves (step 7).
 Everything updates live for everyone in the family.
 
 ## Stack
@@ -57,7 +59,7 @@ Needs Node 22, pnpm and Docker.
 ```bash
 pnpm install
 pnpm dlx supabase start       # Postgres, Auth, Storage, local mail viewer; applies migrations and the demo seed
-cp .env.example .env.local    # fill in the publishable key that `supabase start` prints
+cp .env.example .env.local    # fill in the publishable key that `supabase start` prints, and an Anthropic API key if you have one
 pnpm dev
 ```
 
@@ -93,6 +95,19 @@ The visit sheet (`src/lib/visit-sheet.ts`) gathers what a helper should know
 before a visit: medicines, recent weight, meals and night feeds, what to keep an
 eye on, what other helpers said, practice at home and the questions meant for
 that helper. It only includes what the person opening it is allowed to see.
+
+AI capture (`src/lib/capture.ts`, `src/lib/claude.ts`) follows the brief's rules:
+
+- Claude only drafts. The draft opens in the usual diary or visit form and
+  nothing is written until a person taps Save.
+- Medicine changes from a visit go into the visit notes for a person to act on.
+  Claude never edits the medicine list or a dose.
+- The Claude API is called only from the server, with `ANTHROPIC_API_KEY` from
+  the server's environment. Claude gets only the pasted words or photo,
+  nothing else about the family. Photos are shrunk in the browser, passed straight through
+  and never stored.
+- Without a key, the same screens offer "Type it in myself". The end-to-end
+  tests use a stand-in for Claude (`tests/e2e/mock-claude.ts`).
 
 `test:db:local` uses `tests/db/supabase-shim.sql` to stand in for Supabase's
 `auth` and `storage` schemas. CI runs the database tests against real Supabase.

@@ -3,22 +3,8 @@
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { shrinkPhoto } from "@/lib/shrink-photo";
 import { setPhoto } from "./actions";
-
-/** Makes a photo at most 1000 px on its longest side, as a JPEG (the prototype's shrink). */
-async function shrink(file: File): Promise<Blob> {
-  try {
-    const bitmap = await createImageBitmap(file);
-    const scale = Math.min(1, 1000 / Math.max(bitmap.width, bitmap.height));
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.round(bitmap.width * scale);
-    canvas.height = Math.round(bitmap.height * scale);
-    canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-    return await new Promise((resolve) => canvas.toBlob((b) => resolve(b ?? file), "image/jpeg", 0.86));
-  } catch {
-    return file;
-  }
-}
 
 /**
  * Uploads straight into the child's private folder. Storage rules let only
@@ -33,7 +19,7 @@ export function PhotoPicker({ familyId, childId, childName, hasPhoto }: { family
   const upload = async (file: File) => {
     setBusy(true);
     setStatus("Adding the photo…");
-    const blob = await shrink(file);
+    const blob = await shrinkPhoto(file);
     const path = `${familyId}/${childId}/${crypto.randomUUID()}.jpg`;
     const supabase = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!);
     const { error } = await supabase.storage.from("child-photos").upload(path, blob, { contentType: blob.type || "image/jpeg" });

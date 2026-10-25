@@ -14,13 +14,16 @@ type Props = {
   canEdit: boolean;
   defaultDate: string;
   next: string;
+  /** Values to start with, such as a draft from a visit summary, over the visit's own. */
+  draft?: Partial<Visit>;
 };
 
 /** The prototype's visit sheet (CFG.appts), with the same fields and words. */
-export function VisitForm({ familyId, visit, inSeries, kids, team, canEdit, defaultDate, next }: Props) {
+export function VisitForm({ familyId, visit, inSeries, kids, team, canEdit, defaultDate, next, draft }: Props) {
   const [state, action, pending] = useActionState<FormState, FormData>(saveVisit, {});
   const [scope, setScope] = useState<"this" | "all">("this");
   const v = visit;
+  const d: Partial<Visit> = { ...visit, ...draft };
   const hm = (t: string | null | undefined) => t?.slice(0, 5) ?? "";
 
   return (
@@ -47,16 +50,16 @@ export function VisitForm({ familyId, visit, inSeries, kids, team, canEdit, defa
             )}
             <div className="field">
               <label htmlFor="kind">Type</label>
-              <select id="kind" name="kind" defaultValue={v?.kind ?? VISIT_KINDS[0]}>
+              <select id="kind" name="kind" defaultValue={d.kind ?? VISIT_KINDS[0]}>
                 {VISIT_KINDS.map((k) => (
                   <option key={k}>{k}</option>
                 ))}
               </select>
             </div>
-            <Text name="title" label="What is it" value={v?.title} placeholder="Feeding evaluation" />
+            <Text name="title" label="What is it" value={d.title} placeholder="Feeding evaluation" />
             <div className="field">
               <label htmlFor="provider">Doctor, therapist or nurse</label>
-              <input id="provider" name="provider" defaultValue={v?.provider ?? ""} list="team" autoComplete="off" />
+              <input id="provider" name="provider" defaultValue={d.provider ?? ""} list="team" autoComplete="off" />
               <datalist id="team">
                 {team.map((t) => (
                   <option key={t} value={t} />
@@ -65,27 +68,27 @@ export function VisitForm({ familyId, visit, inSeries, kids, team, canEdit, defa
             </div>
             <div className="field half">
               <label htmlFor="date">Date *</label>
-              <input id="date" name="date" type="date" required defaultValue={v?.date ?? defaultDate} />
+              <input id="date" name="date" type="date" required defaultValue={d.date ?? defaultDate} />
             </div>
             <div className="field half">
               <label htmlFor="time">Time</label>
-              <input id="time" name="time" type="time" defaultValue={hm(v?.time)} />
+              <input id="time" name="time" type="time" defaultValue={hm(d.time)} />
             </div>
-            <Text name="location" label="Location" value={v?.location} />
-            <Text name="who" label="Who is going" value={v?.who} />
-            <Text name="bring" label="What to bring" value={v?.bring} placeholder="Insurance card, med list, diapers, bottle" />
-            <Area name="notes" label="Before the visit" value={v?.notes} rows={2} placeholder="Questions to ask, paperwork" />
+            <Text name="location" label="Location" value={d.location} />
+            <Text name="who" label="Who is going" value={d.who} />
+            <Text name="bring" label="What to bring" value={d.bring} placeholder="Insurance card, med list, diapers, bottle" />
+            <Area name="notes" label="Before the visit" value={d.notes} rows={2} placeholder="Questions to ask, paperwork" />
             <Area
               name="summary"
               label="What happened at the visit"
-              value={v?.summary}
+              value={d.summary}
               rows={4}
               placeholder="Weight, what they checked, what they said"
             />
             <Area
               name="homework"
               label="What we need to do at home"
-              value={v?.homework}
+              value={d.homework}
               rows={3}
               placeholder="Exercises, feeding changes, next appointment"
             />

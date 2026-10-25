@@ -52,7 +52,8 @@ test("a night feed's total is worked out from the pump rate and the times", asyn
 test("a nurse's note shows on Home, with things to keep an eye on in a soft box", async ({ browser }) => {
   const nurse = await signIn(browser, "nurse@example.com");
   await nurse.getByRole("button", { name: "Add a moment" }).click();
-  await nurse.getByRole("dialog").getByRole("link", { name: "Nurse note" }).click();
+  await nurse.getByRole("dialog").getByRole("link", { name: "Nurse text" }).click();
+  await nurse.getByRole("button", { name: "Type it in myself" }).click();
   await nurse.getByLabel("Nurse name").fill("Nurse Pat");
   await nurse.getByLabel("Ate and drank, total").fill("24");
   await nurse.getByLabel("Keep an eye on").fill("A little congested after naps");

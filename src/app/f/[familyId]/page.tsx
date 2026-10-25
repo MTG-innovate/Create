@@ -134,7 +134,7 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
           names={names}
           nurseVisitTime={week?.visits.find((v) => v.date === today && v.kind === "In-home nurse")?.time ?? undefined}
           nurseVisitToday={Boolean(week?.visits.some((v) => v.date === today && v.kind === "In-home nurse"))}
-          addHref={canEdit(me, "nurse_notes") ? newMomentHref(family.id, "nurse_note", today, first.id, here) : null}
+          addHref={canEdit(me, "nurse_notes") ? `/f/${family.id}/capture/nurse?${new URLSearchParams({ child: first.id, next: here })}` : null}
         />
       ) : null}
 
@@ -201,7 +201,7 @@ function NurseSection(props: {
         <h2>From {props.childName}&rsquo;s nurse</h2>
         {props.addHref ? (
           <Link className="linkbtn" href={props.addHref}>
-            + Add the update
+            + Add the nurse’s text
           </Link>
         ) : null}
       </div>

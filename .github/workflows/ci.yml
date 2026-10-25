@@ -52,6 +52,9 @@ jobs:
           export NEXT_PUBLIC_SUPABASE_URL="$API_URL"
           export NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="${PUBLISHABLE_KEY:-$ANON_KEY}"
           export NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3000
+          # The end-to-end tests answer for Claude themselves (tests/e2e/mock-claude.ts).
+          export ANTHROPIC_BASE_URL=http://127.0.0.1:54399
+          export ANTHROPIC_API_KEY=e2e-placeholder
           pnpm build
           nohup pnpm start -H 127.0.0.1 -p 3000 > next.log 2>&1 &
           for i in $(seq 1 60); do curl -sf http://127.0.0.1:3000/sign-in > /dev/null && break; sleep 1; done

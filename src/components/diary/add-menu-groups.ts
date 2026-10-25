@@ -13,14 +13,19 @@ export function addMenuGroups(opts: { familyId: string; me: Member; childName: s
     canEdit(me, MOMENTS[t].area)
       ? [{ label: MOMENTS[t].label, icon: t, color: MOMENTS[t].color, href: newMomentHref(familyId, t, date, childId, next) }]
       : [];
+  const capture = (mode: string) => `/f/${familyId}/capture/${mode}?${new URLSearchParams({ child: childId, next })}`;
   return [
     { title: `${childName}'s day`, items: DAY.flatMap(moment) },
     {
       title: `From ${childName}'s helpers`,
       items: [
-        ...moment("nurse_note"),
+        ...(canEdit(me, "nurse_notes") ? [{ label: "Nurse text", icon: "nurse_note", color: "--nurse", href: capture("nurse") }] : []),
         ...(canEdit(me, "visits")
-          ? [{ label: "Plan a visit", icon: "visit", color: "--accent", href: `/f/${familyId}/visits/new?${new URLSearchParams({ date, next })}` }]
+          ? [
+              { label: "Therapy handoff", icon: "therapy", color: "--exercise", href: capture("therapy") },
+              { label: "Doctor visit", icon: "visit", color: "--weight", href: capture("visit") },
+              { label: "Plan a visit", icon: "visit", color: "--accent", href: `/f/${familyId}/visits/new?${new URLSearchParams({ date, next })}` },
+            ]
           : []),
       ],
     },

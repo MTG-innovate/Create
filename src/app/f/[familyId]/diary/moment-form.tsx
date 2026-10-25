@@ -17,14 +17,17 @@ type Props = {
   next: string;
   canEdit: boolean;
   suggest: Record<"practice" | "medicines" | "team", string[]>;
+  /** Values to start with, such as a draft from a nurse's text. */
+  draft?: Record<string, string>;
 };
 
 /** The prototype's moment sheet (editLog): date and time, then that kind of moment's own fields. */
-export function MomentForm({ familyId, type, moment, kids, childId, unit, date, time, next, canEdit, suggest }: Props) {
+export function MomentForm({ familyId, type, moment, kids, childId, unit, date, time, next, canEdit, suggest, draft }: Props) {
   const [state, action, pending] = useActionState<FormState, FormData>(saveMoment, {});
   const child = kids.find((k) => k.id === childId) ?? kids[0];
   const fields = MOMENTS[type].fields({ name: child.name, unit });
   const value = (f: Field): string => {
+    if (draft && draft[f.key] != null) return draft[f.key];
     if (!moment) return f.initial ?? "";
     const v = f.key === "note" ? moment.note : moment.details[f.key];
     return v == null ? "" : String(v);
