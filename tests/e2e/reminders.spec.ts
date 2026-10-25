@@ -10,7 +10,10 @@ test("Settings offers reminders on this phone", async ({ browser }) => {
   await parent.goto(parent.url() + "/settings");
   const section = parent.locator("section", { has: parent.getByRole("heading", { name: "Reminders on this phone" }) });
   await expect(section).toBeVisible();
-  await expect(section.getByRole("button", { name: "Turn on reminders" }).or(section.getByText("This browser cannot show reminders"))).toBeVisible();
+  // What it says depends on the phone: the test browser looks like an iPhone
+  // and may have no push service, so any of these is right.
+  await expect(section).toContainText(/Turn on reminders|add Little Steps to your Home Screen first|This browser cannot show reminders/);
+  console.log(`Reminders section: ${await section.innerText()}`);
   await section.screenshot({ path: `${shots}/17-reminders.png` });
 });
 
