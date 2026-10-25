@@ -27,8 +27,20 @@ export function LiveRefresh({ familyId, tables }: { familyId: string; tables: st
     for (const table of key.split(",")) {
       channel.on("postgres_changes", { event: "*", schema: "public", table, filter: `family_id=eq.${familyId}` }, refresh);
     }
-    channel.subscribe();
+
+    let stopped = false;
+    // Realtime checks row level security as the signed-in person, so it needs
+    // their token before subscribing. Without it, it quietly sends nothing.
+    supabase.auth.getSession().then(({ data }) => {
+      if (stopped) return;
+      if (data.session) supabase.realtime.setAuth(data.session.access_token);
+      channel.subscribe((status, err) => {
+        if (status !== "SUBSCRIBED") console.warn(`Live updates: ${status}`, err?.message ?? "");
+      });
+    });
+
     return () => {
+      stopped = true;
       clearTimeout(timer);
       supabase.removeChannel(channel);
     };

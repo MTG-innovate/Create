@@ -10,6 +10,10 @@ const shots = "test-results/screens";
 async function signIn(browser: Browser, email: string): Promise<Page> {
   const context = await browser.newContext();
   const page = await context.newPage();
+  // Show the app's own warnings (such as live updates failing to connect) in the test output.
+  page.on("console", (m) => {
+    if (m.type() === "warning" || m.type() === "error") console.log(`[${email}] ${m.text()}`);
+  });
   const since = Date.now();
   await page.goto("/sign-in");
   await page.getByLabel("Your email").fill(email);
