@@ -35,3 +35,9 @@ insert into public.family_members (family_id, user_id, role, helper_label, view_
   ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '22222222-2222-4222-8222-222222222222', 'family', null, '{}', '{}'),
   ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '33333333-3333-4333-8333-333333333333', 'helper', 'Home nurse',
    '{visits,diary,nurse_notes,growth,practice,medicines,team}', '{diary,nurse_notes,growth,practice}');
+
+-- An invented birth weight, so the journey has a starting point.
+insert into public.moments (family_id, child_id, type, date, time, details, note, created_by)
+select c.family_id, c.id, 'weigh_in', '2025-04-12', '09:00', '{"lb": 4, "oz": 2, "length": 16.5}', 'Birth weight',
+  '11111111-1111-4111-8111-111111111111'
+from public.children c where c.family_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';

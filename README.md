@@ -4,10 +4,11 @@ One warm, shared place for families caring for a baby or toddler who came home
 from the NICU. See `docs/BUILD_BRIEF.pdf` for the product and
 `docs/little-steps-prototype.html` for every screen, word and behavior.
 
-**Build status:** step 3 of 9. Done: data model, sign in, families,
+**Build status:** step 4 of 9. Done: data model, sign in, families,
 invitations, roles and family separation (step 1); visits with true weekly
 recurrence and the Home week view (step 2); the diary and the Home tiles
-(step 3). Visits and diary moments update live for everyone in the family.
+(step 3); the journey, with the growth chart and wins (step 4). Visits, diary
+moments and wins update live for everyone in the family.
 
 ## Stack
 
@@ -77,6 +78,10 @@ Diary moments share one table, `moments`, with a `type` and the fields for that
 type in `details`. The kinds, their fields and words come from the prototype's
 `LOG` config and live in `src/lib/moments.ts`, which also checks submitted
 values and works out the night feed total.
+
+The journey (`src/lib/journey.ts`) compares the child only to themself: weight
+over time with the gain since each weigh-in, and wins as stars along the chart.
+It never uses percentiles or growth standards, and a test keeps it that way.
 
 `test:db:local` uses `tests/db/supabase-shim.sql` to stand in for Supabase's
 `auth` and `storage` schemas. CI runs the database tests against real Supabase.
