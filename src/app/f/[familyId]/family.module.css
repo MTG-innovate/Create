@@ -14,6 +14,7 @@
   background: linear-gradient(135deg, var(--hero1), var(--hero2)); color: var(--accent-text);
   font-family: var(--display); font-weight: 600; font-size: 1.1rem; box-shadow: 0 0 0 2px var(--accent);
 }
+.avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
 .name { font-family: var(--display); font-weight: 600; font-size: 1.25rem; line-height: 1.1; margin: 0; overflow-wrap: anywhere; cursor: default; }
 .switcher summary { cursor: pointer; list-style: none; min-height: 44px; display: flex; align-items: center; }
 .switcher summary::after { content: "▾"; font-size: .9rem; margin-left: 6px; color: var(--muted); }

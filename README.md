@@ -4,11 +4,12 @@ One warm, shared place for families caring for a baby or toddler who came home
 from the NICU. See `docs/BUILD_BRIEF.pdf` for the product and
 `docs/little-steps-prototype.html` for every screen, word and behavior.
 
-**Build status:** step 4 of 9. Done: data model, sign in, families,
+**Build status:** step 5 of 9. Done: data model, sign in, families,
 invitations, roles and family separation (step 1); visits with true weekly
 recurrence and the Home week view (step 2); the diary and the Home tiles
-(step 3); the journey, with the growth chart and wins (step 4). Visits, diary
-moments and wins update live for everyone in the family.
+(step 3); the journey, with the growth chart and wins (step 4); helpers,
+practice at home, medicines, settings and the child's photo (step 5).
+Everything updates live for everyone in the family.
 
 ## Stack
 
@@ -37,7 +38,11 @@ The database enforces it, not the app code. `supabase/migrations` holds the rule
   owners can read it, and nobody can edit it.
 - `delete_child()` permanently removes a child, every record about them, and
   their audit history, leaving one note that a deletion happened.
-- Photos live in a private bucket under `<family_id>/<child_id>/`.
+- Photos live in a private bucket under `<family_id>/<child_id>/`, are shown
+  through signed links that expire after an hour, and a child's record can only
+  point at a photo in that child's own folder.
+- The family owner can download all the family's records as one JSON file
+  (Settings), and permanently delete a child's data, photos included.
 - The app has no service key. Every query runs as the signed-in person.
 
 `tests/db` proves all of this with invented families (the Riveras and the
