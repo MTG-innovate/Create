@@ -4,12 +4,12 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import type { FormState } from "@/components/action-form";
 import { ROLES, normalizeAreas } from "@/lib/access";
 import { friendlyError } from "@/lib/errors";
 import { requireUser } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 
-export type FormState = { error?: string; done?: string };
 export type InviteState = FormState & { link?: string; email?: string };
 
 const Access = z.object({

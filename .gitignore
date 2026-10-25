@@ -42,3 +42,8 @@ next-env.d.ts
 
 # local env (see .env.example)
 !.env.example
+
+# end-to-end test output
+/test-results/
+/playwright-report/
+next.log

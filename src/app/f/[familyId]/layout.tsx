@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getFamily, getMyFamilies } from "@/lib/session";
 import styles from "./family.module.css";
+import { Tabs } from "./tabs";
 
 export default async function FamilyLayout({ children, params }: LayoutProps<"/f/[familyId]">) {
   const { familyId } = await params;
@@ -34,20 +35,17 @@ export default async function FamilyLayout({ children, params }: LayoutProps<"/f
               <p className={styles.name}>{family.name}</p>
             )}
           </div>
-          <nav className={styles.nav} aria-label="Family">
-            <Link href={`/f/${family.id}`}>Home</Link>
-            <Link href={`/f/${family.id}/people`}>People</Link>
-            <form action="/auth/sign-out" method="post">
-              <button className="linkbtn" type="submit">
-                Sign out
-              </button>
-            </form>
-          </nav>
+          <form action="/auth/sign-out" method="post">
+            <button className="linkbtn" type="submit">
+              Sign out
+            </button>
+          </form>
         </div>
       </header>
-      <main className="band">
+      <main className={`band ${styles.withTabs}`}>
         <div className="inner stack">{children}</div>
       </main>
+      <Tabs familyId={family.id} />
     </>
   );
 }

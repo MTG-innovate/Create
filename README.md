@@ -4,8 +4,10 @@ One warm, shared place for families caring for a baby or toddler who came home
 from the NICU. See `docs/BUILD_BRIEF.pdf` for the product and
 `docs/little-steps-prototype.html` for every screen, word and behavior.
 
-**Build status:** step 1 of 9 (data model, sign in, families, invitations,
-roles and family separation).
+**Build status:** step 2 of 9. Done: data model, sign in, families,
+invitations, roles and family separation (step 1); visits with true weekly
+recurrence and the Home week view, updating live for everyone in the family
+(step 2).
 
 ## Stack
 
@@ -63,7 +65,13 @@ invented.
 pnpm lint && pnpm typecheck && pnpm test   # unit tests
 pnpm test:db                               # database tests against `supabase start`
 pnpm test:db:local                         # same tests on plain Postgres in Docker, when Supabase can't start
+pnpm test:e2e                              # browser tests: needs `supabase start` and the app on :3000
 ```
+
+Weekly visits are one rule in `visit_series` (start date, every N weeks, end
+date). Dates are worked out from it (`src/lib/visits.ts`); a row in `visits`
+exists for a series date only when it has its own notes, a new day or time, or
+was cancelled.
 
 `test:db:local` uses `tests/db/supabase-shim.sql` to stand in for Supabase's
 `auth` and `storage` schemas. CI runs the database tests against real Supabase.

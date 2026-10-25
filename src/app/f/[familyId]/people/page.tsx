@@ -1,10 +1,11 @@
+import { ActionForm } from "@/components/action-form";
 import { AREA_LABEL, ROLE_LABEL } from "@/lib/access";
 import { getFamily } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import type { Invitation, Member } from "@/lib/types";
 import { AccessFields } from "./access-fields";
 import { cancelInvitation, changeMember, removeMember } from "./actions";
-import { ActionForm, InviteForm } from "./forms";
+import { InviteForm } from "./forms";
 import styles from "./people.module.css";
 
 export default async function PeoplePage({ params }: PageProps<"/f/[familyId]/people">) {
