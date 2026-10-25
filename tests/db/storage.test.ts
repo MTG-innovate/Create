@@ -37,8 +37,14 @@ describe("children's photos", () => {
     expect(await errorCode(tryAs(okafor.owner, upload(`${rivera.id}/${rivera.childId}/swap.jpg`)))).toBe(RLS_DENIED);
     await tryAs(okafor.owner, async (q) => {
       expect((await q("update storage.objects set name = name where name = $1", [photo])).rowCount).toBe(0);
-      expect((await q("delete from storage.objects where name = $1", [photo])).rowCount).toBe(0);
     });
+    // Real Supabase refuses every direct delete on its storage tables (deletes go
+    // through the Storage API, which applies these same policies); plain
+    // Postgres applies the policy and deletes nothing. Either way it must fail.
+    const removal = tryAs(okafor.owner, (q) => q("delete from storage.objects where name = $1", [photo]));
+    const outcome = await removal.then((r) => r.rowCount, (e: { code?: string }) => e.code);
+    expect([0, RLS_DENIED]).toContain(outcome);
+    expect((await pool.query("select 1 from storage.objects where name = $1", [photo])).rowCount).toBe(1);
   });
 
   it("cannot be added by viewers, or outside a family folder", async () => {

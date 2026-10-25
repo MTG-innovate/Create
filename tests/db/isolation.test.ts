@@ -127,6 +127,15 @@ describe("one family cannot change another", () => {
   });
 });
 
+describe("table-wide commands", () => {
+  it.each([...CARE_TABLES, "families", "children", "family_members", "profiles", "invitations", "audit_log"])(
+    "%s cannot be emptied with TRUNCATE, which ignores row level security",
+    async (table) => {
+      expect(await errorCode(tryAs(okafor.owner, (q) => q(`truncate public.${table} cascade`)))).toBe(RLS_DENIED);
+    },
+  );
+});
+
 describe("signed-out visitors", () => {
   it.each([...CARE_TABLES, "families", "children", "family_members", "profiles", "invitations", "audit_log"])(
     "cannot read %s",

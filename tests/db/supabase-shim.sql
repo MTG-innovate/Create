@@ -52,3 +52,9 @@ alter table storage.objects enable row level security;
 grant select, insert, update, delete on storage.objects to authenticated;
 
 grant usage on schema public to anon, authenticated, service_role;
+
+-- Supabase gives every new object in public to these roles by default. The
+-- migrations must narrow this; copying it here keeps the local tests honest.
+alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
