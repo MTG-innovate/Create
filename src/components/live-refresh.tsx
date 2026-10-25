@@ -35,7 +35,8 @@ export function LiveRefresh({ familyId, tables }: { familyId: string; tables: st
       if (stopped) return;
       if (data.session) supabase.realtime.setAuth(data.session.access_token);
       channel.subscribe((status, err) => {
-        if (status !== "SUBSCRIBED") console.warn(`Live updates: ${status}`, err?.message ?? "");
+        // Closing on the way to another page is expected; anything else is worth a warning.
+        if (status !== "SUBSCRIBED" && !stopped) console.warn(`Live updates: ${status}`, err?.message ?? "");
       });
     });
 
