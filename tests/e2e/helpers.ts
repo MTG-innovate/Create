@@ -14,18 +14,22 @@ export async function signIn(browser: Browser, email: string): Promise<Page> {
   page.on("console", (m) => {
     if (m.type() === "warning" || m.type() === "error") console.log(`[${email}] ${m.text()}`);
   });
-  const since = Date.now();
-  await page.goto("/sign-in");
-  await page.getByLabel("Your email").fill(email);
-  // Auth sends one link per address a second; signing the same person in twice
-  // in a row can get "Too many tries", so wait and ask again, as a person would.
+  let since = Date.now();
+  // Auth limits how often one address can ask for a link, and some tests sign
+  // the same person in twice in a row. If it says "Too many tries", wait and
+  // ask again from a fresh page, as a person would.
   for (let attempt = 1; ; attempt++) {
+    await page.goto("/sign-in");
+    await page.getByLabel("Your email").fill(email);
+    since = Date.now();
     await page.getByRole("button", { name: "Email me a sign-in link" }).click();
     const sent = page.getByRole("heading", { name: "Check your email" });
-    await expect(sent.or(page.getByText("Too many tries"))).toBeVisible();
+    const refused = page.getByRole("alert").filter({ hasText: /Too many tries|could not send/ });
+    await expect(sent.or(refused)).toBeVisible();
     if (await sent.isVisible()) break;
-    if (attempt === 3) await expect(sent).toBeVisible();
-    await page.waitForTimeout(2000);
+    console.log(`[${email}] sign-in attempt ${attempt}: ${await refused.innerText()}`);
+    if (attempt === 6) throw new Error(`Could not sign in ${email}: ${await refused.innerText()}`);
+    await page.waitForTimeout(5000);
   }
   await page.goto(await signInLink(email, since));
   await expect(page).toHaveURL(/\/f\/[0-9a-f-]{36}$/);

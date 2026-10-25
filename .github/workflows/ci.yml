@@ -61,6 +61,11 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
       - name: End-to-end tests
         run: pnpm test:e2e
+      - name: Show the app and auth logs
+        if: failure()
+        run: |
+          tail -n 80 next.log || true
+          docker ps --format '{{.Names}}' | grep -i auth | xargs -r -I{} docker logs --tail 80 {} 2>&1 | grep -iE "429|rate|limit|error|otp|magic" | tail -n 40 || true
       - name: Keep screenshots and logs
         if: always()
         uses: actions/upload-artifact@v4
