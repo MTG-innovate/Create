@@ -5,6 +5,7 @@ import { DayTiles, newMomentHref } from "@/components/diary/day-tiles";
 import diary from "@/components/diary/diary.module.css";
 import { NurseCard } from "@/components/diary/nurse-card";
 import { Encouragement } from "@/components/home/encouragement";
+import { GettingStarted } from "@/components/home/getting-started";
 import { HelpersSaying } from "@/components/home/helpers-saying";
 import { MomentForYou } from "@/components/home/moment-for-you";
 import { MedicinesToday } from "@/components/home/medicines-today";
@@ -17,6 +18,7 @@ import { LiveRefresh } from "@/components/live-refresh";
 import { SeriesPrompts } from "@/components/visits/series-prompt";
 import { WeekPlan } from "@/components/visits/week-plan";
 import { canEdit, canView } from "@/lib/access";
+import { gettingStarted } from "@/lib/getting-started";
 import { addDays, ageText, correctedAgeText, daysBetween, fmtDay, fmtTime, greeting, hourIn, isDay, minutesSince, todayIn } from "@/lib/dates";
 import { latestVisitNotes, loadChecks, loadDoses, loadPractice } from "@/lib/helpers-data";
 import { dosesToday } from "@/lib/medicines-today";
@@ -28,6 +30,7 @@ import { lastMeals, loadMoments, namesFor } from "@/lib/moments-data";
 import { photoUrls } from "@/lib/photos";
 import { dayTilesFor, journeyConfig } from "@/lib/journeys";
 import { getFamily } from "@/lib/session";
+import type { Child } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 import { endingSoon } from "@/lib/visits";
 import { loadVisits } from "@/lib/visits-data";
@@ -52,8 +55,8 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
   const nurseToday = newestFirst(moments.filter((m) => m.type === "nurse_note" && m.date === today));
   const names = await namesFor(nurseToday.map((m) => m.created_by), user.id);
   const childNames = children.length > 1 ? new Map(children.map((c) => [c.id, c.name])) : null;
-  const alone = me.role === "owner" && (await countMembers(family.id)) === 1;
   const first = children[0];
+  const start = me.role === "owner" ? await startSteps(family.id, first, user.id) : null;
   const growth = canView(me, "growth")
     ? new Map(await Promise.all(children.map(async (c) => [c.id, upSince(weighIns(await loadWeighIns(family.id, c.id)), c.birth_date)] as const)))
     : new Map();
@@ -102,6 +105,8 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
       ))}
 
       {caregiver ? <Encouragement style={family.encouragement} today={today} name={allNames} /> : null}
+
+      {start ? <GettingStarted familyId={family.id} steps={start} /> : null}
 
       {week && editsVisits ? <SeriesPrompts familyId={family.id} series={endingSoon(week.series, today, 14)} /> : null}
 
@@ -185,19 +190,6 @@ export default async function FamilyHome({ params, searchParams }: PageProps<"/f
         <BrightSpots familyId={family.id} childId={first.id} childName={first.name} wins={brightSpots} canAdd={canEdit(me, "wins")} />
       ) : null}
 
-      {alone ? (
-        <section className="card pad">
-          <h2>Bring in the people who help</h2>
-          <p className="muted">
-            Invite a grandparent, the other parent, or {first.name}&rsquo;s nurse. Each person sees only what you choose.
-          </p>
-          <div className="actions">
-            <Link className="btn primary" href={`/f/${family.id}/people`}>
-              Invite someone
-            </Link>
-          </div>
-        </section>
-      ) : null}
 
       <QuestionsToAsk familyId={family.id} questions={questions} canAdd={canEdit(me, "questions")} />
 
@@ -268,8 +260,25 @@ async function openQuestions(familyId: string) {
   return data ?? [];
 }
 
-async function countMembers(familyId: string): Promise<number> {
+/** What the owner's "Getting started" checklist needs. Only owners see it, and owners can read all of this. */
+async function startSteps(familyId: string, child: Child, userId: string) {
   const supabase = await createClient();
-  const { count } = await supabase.from("family_members").select("*", { count: "exact", head: true }).eq("family_id", familyId);
-  return count ?? 0;
+  const count = (r: { count: number | null }) => r.count ?? 0;
+  const head = { count: "exact", head: true } as const;
+  const [members, invites, visits, series, phones] = await Promise.all([
+    supabase.from("family_members").select("*", head).eq("family_id", familyId),
+    supabase.from("invitations").select("*", head).eq("family_id", familyId).is("accepted_at", null).is("revoked_at", null),
+    supabase.from("visits").select("*", head).eq("family_id", familyId),
+    supabase.from("visit_series").select("*", head).eq("family_id", familyId),
+    supabase.from("push_devices").select("*", head).eq("family_id", familyId).eq("user_id", userId),
+  ]);
+  return gettingStarted({
+    familyId,
+    childName: child.name,
+    birthDate: child.birth_date,
+    othersOrInvites: count(members) - 1 + count(invites),
+    visits: count(visits) + count(series),
+    cardFilled: Boolean(child.allergies || child.conditions || child.emergency_plan),
+    reminders: count(phones) > 0,
+  });
 }

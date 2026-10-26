@@ -1,3 +1,4 @@
+import { LegalLinks } from "@/components/legal-links";
 import { safeNext } from "@/lib/errors";
 import { SignInForm } from "./sign-in-form";
 
@@ -17,6 +18,7 @@ export default async function SignInPage({ searchParams }: PageProps<"/sign-in">
           </p>
         ) : null}
         <SignInForm next={next} />
+        <LegalLinks />
       </div>
     </main>
   );
