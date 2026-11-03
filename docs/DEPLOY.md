@@ -37,8 +37,12 @@ and only to your own team. Families need a real email service.
 3. In **Authentication → URL Configuration**, set the Site URL to your app's
    address (for example `https://app.josiacare.com`) and add
    `https://app.josiacare.com/**` to Redirect URLs.
-4. Optional: in **Authentication → Emails → Templates**, change the Magic Link
-   subject to "Your JOSIA Care sign-in link".
+4. In **Authentication → Emails → Templates** (easiest on a computer), set both
+   **Confirm signup** and **Magic Link** to the message in
+   `supabase/templates/sign-in.html`, with the subjects "Welcome to JOSIA
+   Care: your sign-in" and "Your JOSIA Care sign-in". The message carries a
+   code as well as a link: someone using JOSIA Care from the Home Screen types
+   the code, because an emailed link opens in the browser instead of the app.
 
 ## 3. Create the Vercel project
 

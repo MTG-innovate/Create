@@ -36,6 +36,23 @@ export async function signIn(browser: Browser, email: string): Promise<Page> {
   return page;
 }
 
+/** The code in the newest sign-in email, for signing in without leaving the app. */
+export async function signInCode(email: string, since: number): Promise<string> {
+  for (let i = 0; i < 40; i++) {
+    const res = await fetch(`${MAIL}/api/v1/search?query=${encodeURIComponent(`to:${email}`)}`);
+    const { messages = [] } = (await res.json()) as { messages?: { ID: string; Created: string }[] };
+    const fresh = messages.find((m) => Date.parse(m.Created) >= since - 2000);
+    if (fresh) {
+      const message = (await (await fetch(`${MAIL}/api/v1/message/${fresh.ID}`)).json()) as { HTML: string; Text: string };
+      const words = `${message.Text} ${message.HTML.replace(/<[^>]+>/g, " ")}`;
+      const code = words.match(/Type this code in JOSIA Care:\s*(\d{6,10})/);
+      if (code) return code[1];
+    }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  throw new Error(`No sign-in code arrived for ${email}`);
+}
+
 export async function signInLink(email: string, since: number): Promise<string> {
   for (let i = 0; i < 40; i++) {
     const res = await fetch(`${MAIL}/api/v1/search?query=${encodeURIComponent(`to:${email}`)}`);

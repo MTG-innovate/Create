@@ -84,6 +84,10 @@ cp .env.example .env.local    # fill in the publishable key that `supabase start
 pnpm dev
 ```
 
+The sign-in email (`supabase/templates/sign-in.html`) has a link and a code.
+Typing the code signs someone in without leaving the app, which matters on a
+phone where JOSIA Care was added to the Home Screen.
+
 Sign in as `parent@example.com` (Owner), `grandma@example.com` (Family) or
 `nurse@example.com` (Helper) and open the sign-in link from the mail viewer at
 http://127.0.0.1:54324. The demo child is Josiah; everything else about him is

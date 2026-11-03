@@ -245,6 +245,17 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+# The sign-in email carries both a link and a code, so someone using JOSIA Care
+# from the Home Screen can type the code without leaving the app. The hosted
+# project needs the same template (see docs/DEPLOY.md).
+[auth.email.template.magic_link]
+subject = "Your JOSIA Care sign-in"
+content_path = "./supabase/templates/sign-in.html"
+
+[auth.email.template.confirmation]
+subject = "Welcome to JOSIA Care: your sign-in"
+content_path = "./supabase/templates/sign-in.html"
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"
